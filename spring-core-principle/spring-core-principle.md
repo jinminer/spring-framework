@@ -176,7 +176,27 @@
 
 ### `Spring` 源码构建
 
+* `Gradle`构建过程中的坑
 
+  * 如果项目环境一直无法构建，项目文件夹没有变粗体字，类图无法自动生成。那么你一定是踩到了这样一个坑：
+
+  * 第一步：首先打开`View->Tool Windows -> Gradle` 
+
+    ![source-build-exception-with-gradle-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-1.png)
+
+  * 第二步：点击右侧`Gradle`视图中的`Refresh`，会出现如下的错误：
+
+    ![source-build-exception-with-gradle-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-2.png)
+
+    ![source-build-exception-with-gradle-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-3.png)	
+
+  * 第三步：看错误，显然跟`Gradle`没有任何关系，是因为 `IDEA` 编辑器的 `jre` 环境和自己本地的安装的 `jre` 冲突， 解决办法：
+
+    1. 关闭`IDEA`，打开任务管理器，结束跟`java`有关的所有进程。
+
+    2. 找到`JAVA_HOME -> jre -> lib`目录，将 `tools.jar` 重命名 `tools.jar.bak`。
+
+    3. 重启`IDEA`，再次点击`refresh`，等待构建完成。
 
 
 
