@@ -24,7 +24,7 @@
 
 
 
-#### `spirng5.0` 模块结构
+### `spirng5.0` 模块结构
 
 ![spring-framework-5-runtime](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/spring-framework-5-runtime.png)
 
@@ -106,7 +106,11 @@
 
 
 
-## `Spring` 版本命名规则
+![spring-components-relation](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/spring-components-relation.png)
+
+
+
+### `Spring` 版本命名规则
 
 
 
@@ -133,34 +137,44 @@
 
 #### 商业软件中常见的修饰词
 
-| 描述方式   | 说明   | 含义                                                         |
-| ---------- | ------ | ------------------------------------------------------------ |
-| `Snapshot` | 快照版 | 尚不稳定，处于开发中版本                                     |
-| `Alpha`    | 内部版 | 严重缺陷基本完成修正并通过复测，但需要完整的功能测试         |
-| `Beta`     | 测试版 | 相对 `Alpha` 有很大的改进，消除了严重的错误，但还是存在一些缺陷 |
-| `RC`       | 终测版 | `Release Candidate` (最终测试)，即将最为正式版发布           |
-| `Demo`     | 演示版 | 只集成了正式版部分功能升级，无法升级                         |
-| `SP`       | `SP1`  | 是 `service pack` 的意思表示升级包，`Windows` 系统升级时较为常见 |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
-|            |        |                                                              |
+| 描述方式       | 说明   | 含义                                                         |
+| -------------- | ------ | ------------------------------------------------------------ |
+| `Snapshot`     | 快照版 | 尚不稳定，处于开发中版本                                     |
+| `Alpha`        | 内部版 | 严重缺陷基本完成修正并通过复测，但需要完整的功能测试         |
+| `Beta`         | 测试版 | 相对 `Alpha` 有很大的改进，消除了严重的错误，但还是存在一些缺陷 |
+| `RC`           | 终测版 | `Release Candidate` (最终测试)，即将最为正式版发布           |
+| `Demo`         | 演示版 | 只集成了正式版部分功能升级，无法升级                         |
+| `SP`           | `SP1`  | 是 `service pack` 的意思表示升级包，`Windows` 系统升级时较为常见 |
+| `Release`      | 稳定版 | 功能相对稳定，可以对外发行，但有时间限制                     |
+| `Trial`        | 试用版 | 试用版，仅对部分用户发行                                     |
+| `Full Version` | 完整版 | 即正式版，已发布                                             |
+| `Unregistered` | 未注册 | 有功能或时间限制的版本                                       |
+| `Standard`     | 标准版 | 能满足正常使用功能的版本                                     |
+| `Lite`         | 精简版 | 只含有正式版的核心功能                                       |
+| `Enhance`      | 增强版 | 正式版，功能优化的版本                                       |
+| `Ultimate`     | 旗舰版 | 在标配版本基础上进行升级，体验感更好的版本                   |
+| `Professional` | 专业版 | 针对公告要求功能，专业性更强的使用群体发行的版本             |
+| `Free`         | 自由版 | 自由免费使用的版本                                           |
+| `Upgrade`      | 升级版 | 有功能增强或修复已知 `bug`                                   |
+| `Retail`       | 零售版 | 单独发售                                                     |
+| `Cardware`     | 共享版 | 公用许可证(`IOS`许可证)                                      |
+| `LTS`          | 维护版 | 该版本需要长期维护                                           |
 
 
 
+#### `Spring` 版本命名规则
+
+| 描述方式   | 说明     | 含义                                                         |
+| ---------- | -------- | ------------------------------------------------------------ |
+| `Snapshot` | 快照版   | 尚不稳定、仍处于开发中的版本                                 |
+| `Release`  | 稳定版   | 功能相对稳定，可以对外发行，但有时间限制                     |
+| `GA`       | 正式版   | 代表广发可用的稳定版(`General Availability`)                 |
+| `M`        | 里程碑版 | (`M` 是 `Milestone`的意思)具有一些全新的功能或是具有里程碑意义的版本 |
+| `RC`       | 终测版   | `Release Candidate` (最终测试)，即将作为正式版发布           |
 
 
 
+### `Spring` 源码构建
 
 
 
