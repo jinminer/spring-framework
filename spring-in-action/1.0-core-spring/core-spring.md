@@ -59,23 +59,49 @@
 
   * Spring有多种装配bean的方式，采用XML是很常见的一种装配方式。
 
-    * `Spring Expression Language` SlayDragonQuest bean的声明使用了Spring表达式语言，将System.out（这是一个PrintStream）传入到了SlayDragonQuest的构造器中。
+    * `Spring Expression Language` `SlayDragonQuest bean`的声明使用了`Spring`表达式语言，将`System.out`（这是一个`PrintStream`）传入到了`SlayDragonQuest`的构造器中。
 
     ![di-bean-xml](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.2-di-bean-xml.png)
 
-  * 基于Java的注解配置，可作为`XML`的替代方案
+  * 基于`Java`的注解配置，可作为`XML`的替代方案
 
-    ![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.2-di-bean-xml.png)
-
-
-
-
+    ![di-bean-annotation](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.2-di-bean-annotation.png)
 
 
 
 #### 1.1.3 Applying aspects
 
+基于切面进行声明式编程。
 
+> ​	`DI`能够让相互协作的软件组件保持松散耦合，而面向切面编程（`aspect-oriented programming`，`AOP`）允许开发人员把遍布应用各处的功能分离出来形成可重用的组件。
+>
+> ​	面向切面编程往往被定义为促使软件系统实现关注点的分离的一项技术。系统由许多不同的组件组成，每一个组件各负责一块特定功能。除了实现自身核心的功能之外，这些组件还经常承担着额外的职责。诸如日志、事务管理和安全这样的系统服务经常融入到自身具有核心业务逻辑的组件中去，这些系统服务通常被称为横切关注点，因为它们会跨越系统的多个组件。 如果将这些关注点分散到多个组件中去，你的代码将会带来双重的复杂性。
+>
+> * 实现系统关注点功能的代码将会重复出现在多个组件中。这意味着如果你要改变这些关注点的逻辑，必须修改各个模块中的相关实现。即使你把这些关注点抽象为一个独立的模块，其他模块只是调用它的方法，但方法的调用还是会重复出现在各个模块中。
+> * 组件会因为那些与自身核心业务无关的代码而变得混乱。如一个向地址簿增加地址条目的方法应该只关注如何添加地址，而不应该关注它是不是安全的或者是否需要支持事务。
+
+
+
+图1.2展示了这种复杂性。左边的业务对象与系统级服务结合得过于紧密。每个对象不但要知道它需要记日志、进行安全控制和参与事务，还要亲自执行这些服务。
+
+![aop-general](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.3-aop-general.png)
+
+> ​	`AOP`能够使这些服务模块化，并以声明的方式将它们应用到它们需要影响的组件中去。所造成的结果就是这些组件会具有更高的内聚性并且会更加关注自身的业务，完全不需要了解涉及系统服务所带来复杂性。总之，`AOP`能够确保`POJO`的简单性。
+
+
+
+如图1.3所示，我们可以把切面想象为覆盖在很多组件之上的一个外壳。应用是由那些实现各自业务功能的模块组成的。借助AOP，可以使用各种功能层去包裹核心业务层。这些层以声明的方式灵活地应用到系统中，你的核心应用甚至根本不知道它们的存在。这是一个非常强大的理念，可以将安全、事务和日志关注点与核心业务逻辑相分离。
+
+![aop-best](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.3-aop-best.png)
+
+* AOP 应用举例
+
+  * 目的：业务系统不需要显示调用切面服务
+  * 结构：**before** 、**after** 、**切入点** 
+  * 场景：假设我们需要使用吟游诗人这个服务类来记载骑士的所有事迹。
+  * xml配置：这里使用了Spring的aop配置命名空间把Minstrel bean声明为一个切面。首先，需要把Minstrel声明为一bean，然后在元素中引用该bean。为了进一步定义切面，声明（使用）在embarkOnQuest()方法执行前调用Minstrel的singBeforeQuest()方法。这种方式被称为前置通知（**before advice**）。同时声明（使用）在embarkOnQuest()方法执行后调用singAfter Quest()方法。这种方式被称为后置通知（**after advice**）。在这两种方式中，pointcut-ref属性都引用了名字为embank的**切入点**。该切入点是在前边的元素中定义的，并配置expression属性来选择所应用的通知。表达式的语法采用的是AspectJ的切点表达式语言。
+
+  ![aop-example-xml](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.3-aop-example-xml.png)
 
 
 
