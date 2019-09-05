@@ -1,4 +1,4 @@
-# Core spring
+Core spring
 
 > Spring框架核心知识，即Spring基础原理：
 >
@@ -107,19 +107,61 @@
 
 #### 1.1.4 Eliminating boilerplate code with templates
 
+使用模板消除样板式代码
 
+* 许多Java API，例如JDBC，会涉及编写大量的样板式代码，如：
+
+  ![boilerplate-jdbc](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.1.4-template-boilerplate-jdbc-1.png)
+
+* 使用Spring的JdbcTemplate（利用了 Java 5特性的JdbcTemplate实现）模板能够让你的代码关注于自身的职责
 
 
 
 ### 1.2 Containing your beans
 
+* Spring容器负责创建对象，装配它们，配置它们并管理它们的整个生命周期，从生存到死亡（在这里，可能就是new到
+  finalize()）。在Spring应用中，对象由Spring容器创建和装配，并存在容器之中：
+
+![containing-beans](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.2-containing-beans.png)
+
+* 容器是Spring框架的核心。Spring容器使用DI管理构成应用的组件，它会创建相互协作的组件之间的关联，使这些对象更简单干净，更易于理解，更易于重用并且更易于进行单元测试。
+* Spring容器并不是只有一个。Spring自带了多个容器实现，可以归为两种不同的类型：
+  * bean工厂，由`org.springframework. beans.factory.BeanFactory`接口定义，是最简单的容器，提供基本的DI支持。
+  * 应用上下文，由`org.springframework.context.ApplicationContext`接口定义，基于BeanFactory构建，并提供应用框架级别的服务，例如从属性文件解析文本信息以及发布应用事件给感兴趣的事件监听者。
+
+
+
 #### 1.2.1 Working with an application context
 
-
+* 常见地Spring应用上下文：
+  * `AnnotationConfigApplicationContext`：从一个或多个基于Java的配置类中加载Spring应用上下文。
+  * `AnnotationConfigWebApplicationContext`：从一个或多个基于Java的配置类中加载Spring Web应用上下文。
+  * `ClassPathXmlApplicationContext`：从类路径下的一个或多个XML配置文件中加载上下文定义，把应用上下文的定义文件作为类资源。
+  * `FileSystemXmlapplicationcontext`：从文件系统下的一个或多个XML配置文件中加载上下文定义。
+  * `XmlWebApplicationContext`：从Web应用下的一个或多个XML配置文件中加载上下文定义。	
 
 
 
 #### 1.2.2 A bean's life
+
+* Spring bean的生命周期
+
+  ![beans-lifecycle](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/1.2.2-beans-lifecycle-1.png)
+
+* bean在Spring容器中从创建到销毁经历了若干阶段，每一阶段都可以针对Spring如何管理bean进行个性化定制
+
+  * Spring对bean进行实例化；
+  * Spring将值和bean的引用注入到bean对应的属性中；
+  * 如果bean实现了BeanNameAware接口，Spring将bean的ID传递给setBean-Name()方法；
+  * 如果bean实现了BeanFactoryAware接口，Spring将调用setBeanFactory()方法，将BeanFactory容器实例传入；
+  * 如果bean实现了ApplicationContextAware接口，Spring将调用setApplicationContext()方法，将bean所在的应用上下文的引用传入进来；
+  * 如果bean实现了BeanPostProcessor接口，Spring将调用它们的post-ProcessBeforeInitialization()方法；
+  * 如果bean实现了InitializingBean接口，Spring将调用它们的after-PropertiesSet()方法。类似地，如果bean使用initmethod声明了初始化方法，该方法也会被调用；
+  * 如果bean实现了BeanPostProcessor接口，Spring将调用它们的post-ProcessAfterInitialization()方法；
+  * 此时，bean已经准备就绪，可以被应用程序使用了，它们将一直驻留在应用上下文中，直到该应用上下文被销毁；
+  * 如果bean实现了DisposableBean接口，Spring将调用它的destroy()接口方法。同样，如果bean使用destroy-method声明了销毁方法，该方法也会被调用。
+
+
 
 
 
