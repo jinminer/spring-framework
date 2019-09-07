@@ -309,49 +309,145 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 
 ## 2 Wiring beans
 
-> 详细地介绍DI，展现应用程序中的各个组件（bean）如何装配在一起。这包括基于XML装配、基于Java装配以及Spring所提供的自动装配。
+详细地介绍DI，展现应用程序中的各个组件（bean）如何装配在一起。这包括基于XML装配、基于Java装配以及Spring所提供的自动装配。主要内容：
+
+* 声明bean
+* 构造器注入和Setter方法注入
+* 装配bean
+* 控制bean的创建和销毁
+
+> 在Spring中，对象无需自己查找或创建与其所关联的其他对象。相反，容器负责把需要相互协作的对象引用赋予各个对象。
+>
+> 创建应用对象之间协作关系的行为通常称为装配（wiring），这也是依赖注入（DI）的本质。
 
 
 
 ### 2.1 Exploring Spring's configuration options
 
-> 
+> Spring容器负责创建应用程序中的bean并通过DI来协调这些对象之间的关系。
+
+* Spring bean 的三种主要的装配机制：
+  * 在XML中进行显式配置。
+  * 在Java中进行显式配置。
+  * 隐式的bean发现机制和自动装配。
+* Spring的配置风格是可以互相搭配，混合使用
+  * 可以选择使用XML装配一些bean，使用Spring基于Java的配置（JavaConfig）来装配另一些bean，而将剩余的bean让Spring去自动发现。
+* 建议是尽可能地使用自动配置的机制
+  * 显式配置越少越好。当必须要显式配置bean的时候（比如，有些源码不是由你来维护的，而当你需要为这些代码配置bean的时候），我推荐使用类型安全并且比XML更加强大的JavaConfig。最后，只有当你想要使用便利的XML命名空间，并且在JavaConfig中没有同样的实现时，才应该使用XML。
+
+
 
 ### 2.2 Automatically wiring beans
 
-
+* Spring从两个角度来实现自动化装配：
+  * 组件扫描（component scanning）：Spring会自动发现应用上下文中所创建的bean。
+  * 自动装配（autowiring）：Spring自动满足bean之间的依赖。
 
 
 
 #### 2.2.1 Creating discoverable beans
 
-
+* `@Component` - 用于组件类，实际被应用上下文装配的bean
+  * 表明当前类会作为组件类，并告知Spring要为这个类创建bean。
+  * 组件扫描默认是不启用的。我们还需要显式配置一下Spring，从而命令它去寻找带有@Component注解的类，并为其创建bean。
+* `@ComponentScan` - 用于配置加载类
+  * 注解启用了组件扫描，表明加载当前类时会进行组件扫描
+* `@Configuration` - 用于配置加载类
+  * 表明当前类会作为配置类
+* `@ContextConfiguration` - 用于应用层调用者或启动类
+  * 告诉当前类需要在被`@Configuration` 注解的类中加载配置，当前类运行后，最终会在应用上下文中装配相应的bean
+* `@Autowired` - 用于应用层调用者
+  * 在当前类中声明需要调用的bean，并自动装配应用上下文中管理的目标bean
 
 
 
 #### 2.2.2 Naming a component-scanned bean
 
-
-
-
+* `@Component` - Spring 的组件命名
+  * Spring应用上下文中所有的bean都会给定一个ID。
+  * 如果没有明确地为bean设置ID，Spring就会根据类名为其指定一个ID。具体来讲，这个bean所给定的ID
+    就是将类名的第一个字母变为小写。
+  * 如果想为bean设置自定义的ID，可以将期望的ID作为值传递给@Component注解：`@Component("testBean")` 
+* `@Named` - Java 的组件命名
+  * 可以使用Java依赖注入规范（Java Dependency Injection）中所提供的@Named注解来为bean设置ID
+  * Spring支持将@Named作为@Component注解的替代方案。两者之间有一些细微的差异，但是在大多数场景中，它们是可以互相替换的。
+* 推荐使用 `@Component` 注解
+  * 支持度、兼容性：是Spring自己提供的bean注解，与框架本身更加契合
+  * 见名知意：相较于 `@Named` 注解，`@Component` 清楚地表明当前类定位和用途
 
 
 
 #### 2.2.3 Setting a base package for component scanning
 
+设置组件扫描的基础包：
 
+* String类型
+
+  * 当不为`@ComponentScan`设置任何属性时，按照默认规则，它会以配置类所在的当前包作为基础包（base package）来扫描组件。
+  * 如果想要将配置类放在单独的包中，使其与其他的应用代码区分开来。指定不同的基础包，只需要在`@ComponentScan`的`value`属性中指明包的名称即可，如：`@ComponentScan("com.xxx")` 
+  * 如果想更加清晰地表明你所设置的是基础包，可以通过basePackages属性进行配置：`@ComponentScan(basePackages="com.xxx")` 
+  * 设置多个基础包，将basePackages属性设置为要扫描包
+    的一个数组：`@ComponentScan(basePackages={"com.alipay"),"come.wechat"}` 
+
+* 类或接口
+
+  * 以String类型设置的基础包的方法是类型不安全（not type-safe）的。如果重构代码的话，那么所指定的基础包可能就会出现错误了，需要去修改旧的基础包配置
+
+  * 将扫描的基础包指定为包中所包含的类或接口：
+
+    `@ComponentScan(basePackageClasses={AlipayService.class,WechatService.class}`  
+
+  * basePackageClasses属性所设置的数组中包含了类，**这些类所在的包将会作为组件扫描的基础包**。
+
+  * 可以考虑在包中创建一个用来进行扫描的空标记接口（marker interface）。通过标记接口的方式，你依然能够保持对重构友好的接口引用，但是可以避免引用任何实际的应用程序代码（在稍后重构中，这些应用代码有可能会从想要扫描的包中移除掉）。
 
 
 
 #### 2.2.4 Annotating beans to automatically wired
 
+* `@Autowired` - Spring依赖注入：
 
+  * 自动装配
+
+    * 自动装配就是让Spring自动满足bean依赖的一种方法，在满足依赖的过程中，会在Spring应用上下文中寻找匹配某个bean需求的其他bean。为了声明要进行自动装配，我们可以借助Spring的`@Autowired`注解。
+
+  * 注入方式
+
+    * `constructor`  构造器注入
+
+      ![autowired-constructor](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.2.4-autowired-constructor.png)
+
+    * `setter` 方法注入
+
+      ![autowired-setter](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.2.4-autowired-setter.png)
+
+    * 任意方法注入
+
+      * `@Autowired` 注解可以用在类的任何方法上。
+
+      ![autowired-anymetod](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.2.4-autowired-anymetod.png)
+
+  * 应用上下文进行bean匹配
+
+    * 不管是构造器、Setter方法还是其他的方法，Spring都会尝试满足方法参数上所声明的依赖。假如有且只有一个bean匹配依赖需求的话，那么这个bean将会被装配进来。
+
+    * `required`
+
+      * 如果没有匹配的bean，那么在应用上下文创建的时候，Spring会抛出一个异常。为了避免异常的出现，你可以将`@Autowired`的`required`属性设置为false：
+
+      ![autowired-require](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.2.4-autowired-require.png)
+
+      * 将required属性设置为false时，Spring会尝试执行自动装配，但是如果没有匹配的bean的话，Spring将会让这个bean处于未装配的状态。
+      * 注意：当required属性设置为false时，如果在代码中没有进行null检查的话，这个处于未装配状态的属性有可能会出现NullPointerException
+      * 如果有多个bean都能满足依赖关系的话，Spring将会抛出一个异常，表明没有明确指定要选择哪个bean进行自动装配。
+
+* `@Inject` - 基于Java依赖注入规范
+
+  * `@Inject` 注解来源于Java依赖注入规范，在自动装配中，Spring同时支持`@Inject`和`@Autowired`。尽管二者之间有着一些细微的差别，但是在大多数场景下，它们都是可以互相替换的。
 
 
 
 #### 2.2.5 Verifying automatic configuration
-
-
 
 
 
