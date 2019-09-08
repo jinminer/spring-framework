@@ -453,17 +453,61 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 
 ### 2.3 Wiring beans with Java
 
+* 尽管在很多场景下通过组件扫描和自动装配实现Spring的自动化配置是更为推荐的方式，但有时候自动化配置的方案行不通，因此需要明确配置Spring。比如说，你想要将第三方库中的组件装配到你的应用中，在这种情况下，是没有办法在它的类上添加`@Component`和`@Autowired`注解的，因此就不能使用自动化装配的方案了。
+* 在这种情况下，你必须要采用显式装配的方式。在进行显式配置的时候，有两种可选方案：Java和XML。
+
 
 
 #### 2.3.1 Creating a configuration class
 
-
-
-
+* `@Configuration` 注解表明这个类是一个配置类，该类应该包含在Spring应用上下文中如何创建bean的细节。
+* 发现Spring应该创建的bean
+  * `@ComponentScan` - 组件扫描
+  * `@Configuration` - 显式配置
 
 #### 2.3.2 Declaring a simple bean
 
+* `@Bean` - 声明简单的bean
 
+  * 要在JavaConfig中声明bean，我们需要编写一个方法，这个方法会创建所需类型的实例，然后给这个方法添加`@Bean`注解。比方说，下面的代码声明了CompactDisc bean：
+
+    ![declaring-bean-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.2-declaring-bean-1.png)
+
+  * 默认情况下，bean的ID与带有`@Bean`注解的方法名是一样的。如果想为其设置成一个不同
+    的名字的话，那么可以重命名该方法，也可以通过`name`属性指定一个不同的名字：
+
+    ![declaring-bean-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.2-declaring-bean-2.png)
+
+
+
+#### 2.3.3 Injecting with JavaConfig
+
+借助JavaConfig实现注入，将多个bean进行组合装配
+
+* 显示调用的方式引用bean
+
+  * 在JavaConfig中装配bean的最简单方式就是引用创建bean的方法。如通过构造注入的方式，将需要组合装配的bean进行关联：
+
+    ![composite-beans-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.3-composite-beans-1.png)
+
+  * 在进行bean的组合装配时，Spring将会拦截所有对它的调用，并确保直接返回该方法所创建的bean，而不是每次都对其进行实际的调用。
+
+    * 即如果Spring上下文中已经有该bean的实例，则直接返回，如果没有就创建一个。
+    * Spring中的bean都是单例的，我们可以将同一个SgtPeppers实例注入到任意数量的其他bean之中。也就是说下面代码中两个CDPlayer bean会得到相同的SgtPeppers实例。
+
+    ![composite-beans-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.3-composite-beans-2.png)
+
+* DI 方式引用bean
+
+  * 构造器注入
+
+    ![composite-beans-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.3-composite-beans-3.png)
+
+  * Setter方法注入
+
+    ![composite-beans-4](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.3.3-composite-beans-4.png)
+
+  * 通过这种方式引用其他的bean通常是最佳的选择，因为它不会要求将CompactDisc声明到同一个配置类之中。在这里甚至没有要求CompactDisc必须要在JavaConfig中声明，实际上它可以通过组件扫描功能自动发现或者通过XML来进行配置。你可以将配置分散到多个配置类、XML文件以及自动扫描和装配bean之中，只要功能完整健全即可。
 
 
 
