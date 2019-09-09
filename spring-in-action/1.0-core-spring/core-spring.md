@@ -563,20 +563,184 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 * 在XML中声明DI时，会有多种可选的配置方案和风格。具体到构造器注入，有两种基本的配置方案可供选择：
   * `<constructor-arg>` 元素
   * 使用Spring 3.0所引入的`c-命名空间` 
+  
 * 两者的区别在很大程度就是是否冗长烦琐。`<constructor-arg>` 元素比使用`c-命名空间`会更加冗长，从而
   导致XML更加难以读懂。另外，有些事情 `<constructor-arg>` 可以做到，但是使用c-命名空间却无法实现。
-* 构造器注入bean引用
-  * 
+  
+* `xml` 构造器注入bean引用
+  
+  * 在XML中声明CDPlayer并通过ID引用SgtPeppers：
+  
+    ![inject-bean-xml-constructor-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-xml-constructor-1.png)
+  
+  * 当Spring遇到这个元素时，它会创建一个CDPlayer实例。元素会告知Spring要将一个ID为compactDisc的bean引用传递到CDPlayer的构造器中。
+  
+* `c-命名空间` 构造注入
 
+  * `c-命名空间`是在Spring 3.0中引入的，它是在XML中更为简洁地描述构造器参数的方式。
 
+  * **声明其模式** - 要使用它的话，必须要在XML的顶部声明其模式，如下所示：
+
+    ![inject-bean-cnamingspace-constructor-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-cnamingspace-constructor-2.png)
+
+  * 使用 `c-命名空间` 声明构造器参数
+
+    ![inject-bean-cnamingspace-constructor-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-cnamingspace-constructor-3.png)
+
+  * `c-命名空间` 属性名组成
+
+    * 属性名以“c:”开头，也就是命名空间的前缀。接下来就是要装配的构造器参数名“cd”，在此之后是“-ref”，这是一个命名的约定，它会告诉Spring，正在装配的是一个bean的引用，这个bean的名字是compactDisc，而不是字面量“compactDisc”。
+
+    ![inject-bean-cnamingspace-constructor-4](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-cnamingspace-constructor-4.png)
+
+  * 使用索引来识别 `c-命名空间` 的构造器参数
+
+    * 直接引用构造器参数的名称，在编译代码的时候，会将调试标志（debug symbol）保存在类代码中。如果在优化构建过程，将调试标志移除掉，那么这种方式可能就无法正常执行了。这时可以使用参数在整个参数列表中的位置信息来代替参数名称：
+
+    ![inject-bean-cnamingspace-constructor-5](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-cnamingspace-constructor-5.png)
+
+    * 这里将参数的名称替换成了“0”，也就是参数的索引。因为在XML中不允许数字作为属性的第一个字符，因此必须要添加一个下画线作为前缀。
+    * 使用索引来识别构造器参数，即便在构建的时候移除掉了调试标志，参数却会依然保持相同的顺序。如果有多个构造器参数的话，这当然是很有用处的。而且当只有一个构造器参数，可以直接省略标示参数：
+
+    ![inject-bean-cnamingspace-constructor-6](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-inject-bean-cnamingspace-constructor-6.png)
+
+* bean构造器属性传参
+
+  * 构造器带参bean示例
+
+    ![constructor-transfer-args-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-constructor-transfer-args-1.png)
+
+  * `xml` 构造器属性传参
+
+    * `value` 属性 - 通过该属性表明给定的值要以字面量的形式注入到构造器之中。
+
+    ![constructor-transfer-args-xml-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-constructor-transfer-args-xml-1.png)
+
+  * `c-namespace` 
+
+    * 装配字面量与装配引用的区别在于属性名中去掉了“-ref”后缀
+
+    ![constructor-transfer-args-cnamingspace-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-constructor-transfer-args-cnamingspace-1.png)
+
+  * `c-namespace` 索引代替参数名
+
+    ![constructor-transfer-args-cnamingspace-index-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-constructor-transfer-args-cnamingspace-index-1.png)
+
+  * XML不允许某个元素的多个属性具有相同的名字。因此，如果有两个或更多的构造器参数的话，我们不能简单地使用下画线进行标示。假设只有一个构造器参数，也可以省略索引位数字，简写表示
+
+    ![constructor-transfer-args-cnamingspace-index-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-constructor-transfer-args-cnamingspace-index-2.png)
+
+* bean构造器集合类型的属性传参
+
+  * 集合类型属性bean示例
+
+    ![injecting-constructor-properties-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-constructor-properties-1.png)
+
+  * `xml` 属性值置空
+
+    * `<null/>`  - 将null传递给构造器。
+
+    ![injecting-constructor-properties-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-constructor-properties-2.png)
+
+  * `xml` 将普通集合类型的属性声明为列表，如 `List<String>` 
+
+    * 其中，`<list>` 元素是`<constructor-arg>`的子元素，这表明一个包含值的列表将会传递到构造器中。其中，`<value>`元素用来指定 列表中的每个元素。
+
+    ![injecting-constructor-properties-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-constructor-properties-3.png)
+
+  * `xml` 将bean集合类型属性声明为列表，如将下面的代码在xml种进行配置：
+
+    ![injecting-constructor-properties-4](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-constructor-properties-4.png)
+
+    ![injecting-constructor-properties-5](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-constructor-properties-5.png)
+
+  * 在装配集合方面，比c-命名空间的属性更有优势。目前，使用c-命名空间的属性无法实现装配集合的功能。
 
 
 
 #### 2.4.4 Setting properties
 
+属性注入
+
+* bean示例
+
+  ![injecting-setter-properties-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-1.png)
+
+* 选型
+  * 一般而言对于一个通用的规则，即对强依赖可使用构造器注入
+  * 对可选性的依赖使用属性注入
+
+*  `xml` 方式进行属性注入
+
+  * `<property>` 元素为属性的Setter方法所提供的功能，与`<constructor-arg>`元素为构造器所提供的功能是一样的。
+  * 在本例中，它引用了ID为compactDisc的bean（通过ref属性），并将其注入到compactDisc属性中（通过setCompactDisc()方法）。
+
+  ![injecting-setter-properties-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-3.png)
+
+* `p-namespace` 方式进行属性注入
+
+  * Spring提供了`p-`命名空间，作为`<property>` 元素的替代方案。
+
+  * 为了启用`p-`命名空间，必须要在XML文件中与其他的命名空间一起对其进行声明：
+
+    ![injecting-setter-properties-4](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-4.png)
+
+  * `p-namespace` 属性注入
+
+    ![injecting-setter-properties-5](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-5.png)
+
+  * p-命名空间中属性所遵循的命名约定与c-命名空间中的属性类似，p-命名空间属性组成如下
+
+    ![injecting-setter-properties-6](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-6.png)
+
+  * 首先，属性的名字使用了“p:”前缀，表明我们所设置的是一个属性。接下来就是要注入的属性名。最后，属性的名称以“-ref”结尾，这会提示Spring要进行装配的是引用，而不是字面量。
 
 
 
+* 属性注入传参
+
+  * bean代码示例
+
+    ![injecting-setter-properties-7](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-7.png)
+
+  *  `xml` 属性注入并传参
+
+    * 在这里，除了使用元素的value属性来设置title和artist，我们还使用了内嵌的元素来设置tracks属性，这
+      与之前通过装配tracks是完全一样的。
+
+    ![injecting-setter-properties-9](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-9.png)
+
+  * `p-namespace` 属性注入并传参
+
+    * 与c-命名空间一样，装配bean引用与装配字面量的唯一区别在于是否带有“-ref”后缀。如果没有“-ref”后缀的话，所装配的就是字面量，即非bean参数。
+    * 需要注意的是：不能使用`p-namespace`来装配集合
+
+    ![injecting-setter-properties-10](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-10.png)
+
+  * 使用Spring ` util-namespace` 中的一些功能来简化包含集合属性的bean
+
+    * 首先，需要在XML中声明util-命名空间及其模式：
+
+      ![injecting-setter-properties-11](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-11.png)
+
+    * 首先，借助 ` util-namespace` 中的 `<util:list>` 元素，将磁道列表转移到BlankDisc bean之外，并将其声明到单独的bean之中：
+
+      ![injecting-setter-properties-12](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-12.png)
+
+    * 然后，我们能够像使用其他的bean那样，将磁道列表bean注入到BlankDisc bean的tracks属性中：
+
+      ![injecting-setter-properties-13](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.3-injecting-setter-properties-13.png)
+
+    * Spring util-命名空间中的元素
+
+      | 元 素                  | 描 述                                              |
+      | ---------------------- | -------------------------------------------------- |
+      | `<util:constant>`      | 引用某个类型的public static域，并将其暴露为bean    |
+      | `<util:list>`          | 创建一个java.util.List类型的bean，其中包含值或引用 |
+      | `<util:map>`           | 创建一个java.util.Map类型的bean，其中包含值或引用  |
+      | `<util:properties>`    | 创建一个java.util.Properties类型的bean             |
+      | `<util:property-path>` | 引用一个bean的属性（或内嵌属性），并将其暴露为bean |
+      | `<util:set>`           | 创建一个java.util.Set类型的bean，其中包含值或引用  |
 
 
 
