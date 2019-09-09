@@ -517,15 +517,33 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 
 #### 2.4.1 Creating an XML configuration specification
 
+* 配置描述
 
+  * `@Configuration` 
 
+    * 在JavaConfig中需要创建一个带有@Configuration注解的类
 
+  * `Spring XML` 
+
+    * 创建一个XML文件，并且要以元素为根。
+    * 在使用XML时，需要在配置文件的顶部声明多个XML模式（XSD）文件，这些文件定义了配置Spring的XML元素。
+
+    ![configuration-spirngxml-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.4.1-configuration-spirngxml-1.png)
 
 
 
 #### 2.4.2 Declaring a simple < bean > 
 
+* 声明一个bean
 
+  * javaConfig - `@Bean` 
+  * xml - `<bean class="com.jinm.test.TestBean" />` 
+    * 通过`class`属性来指定的需要创建bean，并且要使用全限定的类名。
+
+  * 自动化bean命名
+    * 因为没有明确给定ID，所以这个bean将会根据全限定类名来进行命名。比如上面的例子中，bean的ID将会是 " `com.jinm.test.TestBean#0` "。
+    * 其中，“#0”是一个计数的形式，用来区分相同类型的其他bean。如果你声明了另外一个 `TestBean`，并且没有明确进行标识，那么它自动得到的ID将会是“com.jinm.test.TestBean#1”。
+  * 自定义bean命名 - `<bean id="testBean" class="com.jinm.test.TestBean" />` 
 
 
 
