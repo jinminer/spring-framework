@@ -539,17 +539,34 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
   * javaConfig - `@Bean` 
   * xml - `<bean class="com.jinm.test.TestBean" />` 
     * 通过`class`属性来指定的需要创建bean，并且要使用全限定的类名。
-
-  * 自动化bean命名
+* 自动化bean命名
     * 因为没有明确给定ID，所以这个bean将会根据全限定类名来进行命名。比如上面的例子中，bean的ID将会是 " `com.jinm.test.TestBean#0` "。
     * 其中，“#0”是一个计数的形式，用来区分相同类型的其他bean。如果你声明了另外一个 `TestBean`，并且没有明确进行标识，那么它自动得到的ID将会是“com.jinm.test.TestBean#1”。
-  * 自定义bean命名 - `<bean id="testBean" class="com.jinm.test.TestBean" />` 
+  * 自定义bean命名 
+    *  `<bean id="testBean" class="com.jinm.test.TestBean" />` 
+  
+* XML配置的缺点
 
+  * bean 创建方式
+    * `XML` - 当Spring解析XML配置文件，发现 `<bean>` 这个元素时，它将会调用在 `class`  属性中定义的类的默认构造器来创建bean。
+    * `JavaConfig` - 在JavaConfig配置方式中，你可以通过任何可以想象到的方法来创建bean实例。
+  * 类型检查
+    * `XML` - 在XML配置模式中，bean的类型以字符串的形式设置在了class属性中，这个机制导致Spring并不能在编译期的类型检查中，确定bean定义的合法性。如果类名或类路径变了就会抛出异常。
+    * `JavaConfig` - 而JavaConfig基于Java 注解实现，直接作用于目标bean上，不会存在这种问题
 
+  
 
 #### 2.4.3 Initializing a bean with constructor injection
 
+以构造器注入的方式初始化bean
 
+* 在XML中声明DI时，会有多种可选的配置方案和风格。具体到构造器注入，有两种基本的配置方案可供选择：
+  * `<constructor-arg>` 元素
+  * 使用Spring 3.0所引入的`c-命名空间` 
+* 两者的区别在很大程度就是是否冗长烦琐。`<constructor-arg>` 元素比使用`c-命名空间`会更加冗长，从而
+  导致XML更加难以读懂。另外，有些事情 `<constructor-arg>` 可以做到，但是使用c-命名空间却无法实现。
+* 构造器注入bean引用
+  * 
 
 
 
