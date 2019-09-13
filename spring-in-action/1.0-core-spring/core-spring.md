@@ -750,19 +750,63 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 
 #### 2.5.1 Referencing XML configuration in JavaConfig
 
+在JavaConfig中引用XML配置
 
+* JavaConfig配置拆分
+
+  > 如果当前配置类(被`@Configuration` 修饰的类)组合了过多的bean时，变得比较笨重，可以将这些bean从当前配置类中拆分出来，即为这些bean定义各自的配置类，然后再通过 `@Import` 注解将各个bean的配置类关联到当配置类中
+
+  * 为bean定制自己独有的配置类
+
+    ![bean-self-configuration](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.1-1-bean-self-configuration.png)
+
+  * 使用 `@Import` 注解将某个子配置类导入当前配置类
+
+    ![import-bean-self-configuration](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.1-2-import-bean-self-configuration.png)
+
+  * 抽出一个高级配置类，再用 `@Import` 组合多个子配置类
+
+    ![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.1-3-import-multiple-bean-configuration.png)
+
+* 在JavaConfig中引用XML配置
+
+  * 在xml配置bean
+
+    ![define-bean-in-xml](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.1-4-define-bean-in-xml.png)
+
+  * 使用 `@ImportResource` 注解在JavaConfig中引入xml配置的bean
+
+    * 两个bean——配置在JavaConfig中的CDPlayer以及配置在XML中BlankDisc——都会被加载到Spring容器之中。因为CDPlayer中带有@Bean注解的方法接受一个CompactDisc作为参数，因此BlankDisc将会装配进来，此时与它是通过XML配置的没有任何关系。
+
+    ![import-xmlbean-in-javaconfig](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.1-5-import-xmlbean-in-javaconfig.png)
 
 
 
 #### 2.5.2 Referencing JavaConfig in XML configuration
 
+在XML配置中引用JavaConfig
 
+* XML配置拆分
+
+  * 使用 `<bean>` 元素将JavaConfig类导入到XML配置中
+
+    * 注意：`<import>` 元素只能导入其他的XML配置文件
+    * 采用这样的方式，两种配置——其中一个使用XML描述，另一个使用Java描述——被组合在了一起。
+
+    ![define-bean-in-xml](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.2-1-define-bean-in-xml.png)
+
+  * 抽出一个更高层次的配置文件组合多个配置，包括JavaConfig和XML配置
+
+    ![multiple-config-in-xml](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/2.5.2-2-multiple-config-in-xml.png)
+
+* 不管使用JavaConfig还是使用XML进行装配，我通常都会创建一个根配置（root configuration），也就是这里展现的这样，这个配置会将两个或更多的装配类和/或XML文件组合起来。我也会在根配置中启用组件扫描（通过或@ComponentScan）
 
 
 
 ### 2.6 Summary
 
-
+* Spring框架的核心是Spring容器。容器负责管理应用中组件的生命周期，它会创建这些组件并保证它们的依赖能够得到满足，这样的话，组件才能完成预定的任务。
+* 尽可能使用自动化配置，以避免显式配置所带来的维护成本。如果确实需要显式配置Spring的话，应该优先选择基于Java的配置，它比基于XML的配置更加强大、类型安全并且易于重构。
 
 ## 3 Advanced Wiring
 
