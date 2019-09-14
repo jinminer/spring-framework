@@ -810,23 +810,134 @@ Spring 4.0中包含了很多令人兴奋的新特性，包括：
 
 ## 3 Advanced Wiring
 
-> 高级装配技术，包括：条件化装配、处理自动装配时的歧义性、作用域以及Spring表达式语言，还有如何发挥Spring容器最强大的威力。
+> 高级装配技术，包括：
+>
+> * Spring profiles
+> * 条件化的bean声明(Conditional bean declaration)
+> * 自动装配与歧义性(Autowiring and ambiguity)
+> * bean的作用域(Bean scoping)
+> * Spring表达式语言(The Spring Expression Language)
+
+
 
 ### 3.1 Environments and profiles
 
+> ​		在开发软件的时候，有一个很大的挑战就是将应用程序从一个环境迁移到另外一个环境。开发阶段中，某些环境相关做法可能并不适合迁移到生产环境中，甚至即便迁移过去也无法正常工作。数据库配置、加密算法以及与外部系统的集成是跨环境部署时会发生变化的几个典型例子。
 
+
+
+* 案例 - 项目中的数据库配置
+
+  * 在开发环境中，我们可能会使用嵌入式数据库，并预先加载测试数据。
+
+    * 如在Spring配置类中，我们可能会在一个带有@Bean注解的方法上使用EmbeddedDatabaseBuilder：
+
+    ![datasource-bean-1](<https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1-1-datasource-bean-1.png>)
+
+    * 这会创建一个类型为javax.sql.DataSource的bean
+    * 使用EmbeddedDatabaseBuilder会搭建一个嵌入式的Hypersonic数据库，它的模式（schema）定义在schema.sql中，测试数据则是通过test-data.sql加载的。
+    * 当你在开发环境中运行集成测试或者启动应用进行手动测试的时候，这个DataSource是很有用的。每次启动它的时候，都能让数据库处于一个给定的状态。
+
+  * 在生产环境的配置中，你可能会希望使用JNDI从容器中获取一个DataSource。
+
+    * 通过JNDI获取DataSource能够让容器决定该如何创建这个DataSource，甚至包括切换为容器管理的连接池。
+
+    ![datasource-bean-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1-2-datasource-bean-2.png)
+
+  * 在QA环境中，DataSource可以配置为Commons DBCP连接池
+
+    ![datasource-bean-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1-3-datasource-bean-3.png)
+
+* 总结
+
+  * 这里展现的三个版本的dataSource()方法互不相同。虽然它们都会生成一个类型为javax.sql.DataSource的bean，但它们的相似点也仅限于此了。每个方法都使用了完全不同的策略来生成DataSource bean。
+  * 这是一个很好的例子，它表现了在不同的环境中某个bean会有所不同。我们必须要有一种方法来配置DataSource，使其在每种环境下都会选择最为合适的配置。
+  * 其中一种方式就是在单独的配置类（或XML文件）中配置每个bean，然后在构建阶段（可能会使用Maven的profiles）确定要将哪一个配置编译到可部署的应用中。这种方式的问题在于要为每种环境重新构建应用，在进行环境切换迁移时可能会引入bug
 
 
 
 #### 3.1.1 Configuring profiles bean
 
+> * Spring为环境相关的bean所提供的解决方案其实与多配置文件构建时的方案异曲同工。在实现过程中同样需要根据环境决定该创建哪个bean和不创建哪个bean。
+> * 区别在于Spring中DI机制的运用，它并不是在构建的时候做出这样的决策，而是等到运行时再来确定。这样的结果就是同一个部署单元（可能会是WAR文件）能够适用于所有的环境，没有必要进行重新构建。
+> * 在**3.1版本**中，Spring引入了bean profile的功能，来解决不同环境下，加载不同bean的问题
+> * 要使用profile，你首先要将所有不同的bean定义整理到一个或多个profile之中，在将应用部署到每个环境时，要确保对应的profile处于激活（active）的状态。
 
+
+
+* 基于JavaConfig的profile配置
+
+  `@Profile` - 注解指定某个bean属于哪一个profile
+
+  * 例如，在配置类中，嵌入式数据库的DataSource可能会配置成如下所示：
+
+  ![1-javaconfig-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-1-javaconfig-profile.png)
+
+  * 需要注意的是@Profile注解应用在了类级别上。它会告诉Spring这个配置类中的bean只有在dev profile激活时才会创建。如果dev profile没有激活的话，那么带有@Bean注解的方法都会被忽略掉。
+
+  * 同理，创建适用于生产环境的配置，如下所示：
+
+    ![2-javaconfig-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-2-javaconfig-profile.png)
+
+  * `一个配置类多种profile配置` 
+
+    * **在Spring 3.1中，只能在类级别上使用@Profile注解。从Spring 3.2开始，可以在方法级别上使用@Profile注解，与@Bean注解一同使用。**
+
+    * 将两个bean的声明放到同一个配置类之中，如下所示：
+
+      ![3-javaconfig-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-3-javaconfig-profile.png)
+
+  * 注意：尽管每个DataSource bean都被声明在一个profile中，并且只有当规定的profile激活时，相应的bean才会被创建，但是可能会有其他的bean并没有声明在一个给定的profile范围内。没有指定profile的bean始终都会被创建，与激活哪个profile没有关系。
+
+* 基于XML的profile配置
+
+  * 通过 `<bean>` 元素的profile属性，在XML中配置profile bean。
+
+    * 例如，为了在XML中定义适用于开发阶段的嵌入式数据库DataSourcebean，创建如下所示的XML文件：
+
+      ![4-xml-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-4-xml-profile.png)
+
+  * 同样，可以创建基于连接池定义的DataSource bean和适用于生产环境的从JNDI获取的DataSource bean，将它们分别放在不同一个XML文件中。所有的配置文件都会放到部署单元之中（如WAR文件），但是只有profile属性与当前激活profile相匹配的配置文件才会被用到。
+
+  * `一个xml配置文件多种profile配置` 
+
+    * 可以在根 `<beans>` 元素中嵌套定义 `<bean>` 元素，而不是为每个环境都创建一个profile XML文件。这能够将所有的profile bean定义放到同一个XML文件中，重复使用元素来指定多个profile，如：
+
+      ![5-xml-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-5-xml-profile.png)
+
+  * 除了所有的bean定义到了同一个XML文件之中，这种配置方式与定义在单独的XML文件中的实际效果是一样的。这里有三个bean，类型都是javax.sql.DataSource，并且ID都是dataSource。但是在运行时，只会创建一个bean，这取决于处于激活状态的是哪个profile。
 
 
 
 #### 3.1.2 Activating profiles
 
+* Spring在确定哪个profile处于激活状态时，需要依赖两个独立的属性：
+  * `spring.profiles.active` - 如果设置了spring.profiles.active属性的话，那么它的值就会用来确定哪个profile是激活的。
+  * `spring.profiles.default` - 如果没有设spring.profiles.active属性的话，那Spring将会查找spring.profiles.default的值。
+  * 如果spring.profiles.active和spring.profiles.default均没有设置的话，那就没有激活的profile，因此只会创建那些没有定义在profile中的bean。
+* 来设置profile激活属性的方式：
+  * 作为DispatcherServlet的初始化参数；
+  * 作为Web应用的上下文参数；
+  * 作为JNDI条目；
+  * 作为环境变量；
+  * 作为JVM的系统属性；
+  * 在集成测试类上，使用@ActiveProfiles注解设置。
 
+* 推荐方式：使用DispatcherServlet的参数将spring.profiles.default设置为开发环境的profile，我会在Servlet上下文中进行设置（为了兼顾到ContextLoaderListener）。
+
+  * 例如，在Web应用中，设置spring.profiles.default的web.xml文件会如下所示：
+
+    ![6-webxml-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-6-webxml-profile.png)
+
+    * 按照这种方式设置spring.profiles.default，所有的开发人员都能从版本控制软件中获得应用程序源码，并使用开发环境的设置（如嵌入式数据库）运行代码，而不需要任何额外的配置。
+    * 当应用程序部署到QA、生产或其他环境之中时，负责部署的人根据情况使用系统属性、环境变量或JNDI设
+      置spring.profiles.active即可。系统会优先使用spring.profiles.active中所设置的profile。
+
+* `@ActiveProfiles` - 指定运行测试时要激活哪个profile。
+
+  * 例如运行集成测试时，通常会希望采用与生产环境（或者是生产环境的部分子集）相同的配置进行测试。但是，如果配置中的bean定义在了profile中，那么在运行测试时，就可以通过`@ActiveProfiles`来启用合适的profile。
+
+    ![7-activating-profile](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-in-action/1.0-spring-core/3.1.1-7-activating-profile.png)
 
 
 
