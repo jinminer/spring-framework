@@ -20,13 +20,13 @@
 
 #### `AOP`、`IOC`、`DI` 之间的关系
 
-![relation-aop-ioc-di](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/relation-aop-ioc-di.png)
+![relation-aop-ioc-di](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/relation-aop-ioc-di.png)
 
 
 
 ### `spirng5.0` 模块结构
 
-![spring-framework-5-runtime](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/spring-framework-5-runtime.png)
+![spring-framework-5-runtime](<https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/spring-framework-5-runtime.png>)
 
 
 
@@ -106,7 +106,7 @@
 
 
 
-![spring-components-relation](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/spring-components-relation.png)
+![spring-components-relation](<https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/spring-components-relation.png>)
 
 
 
@@ -182,13 +182,13 @@
 
   * 第一步：首先打开`View->Tool Windows -> Gradle` 
 
-    ![source-build-exception-with-gradle-1](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-1.png)
+    ![source-build-exception-with-gradle-1](<https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/source-build-exception-with-gradle-1.png>)
 
   * 第二步：点击右侧`Gradle`视图中的`Refresh`，会出现如下的错误：
 
-    ![source-build-exception-with-gradle-2](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-2.png)
+    ![source-build-exception-with-gradle-2](<https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/source-build-exception-with-gradle-2.png>)
 
-    ![source-build-exception-with-gradle-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-preparatory-knowing/source-build-exception-with-gradle-3.png)	
+    ![source-build-exception-with-gradle-3](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-preparatory-knowing/source-build-exception-with-gradle-3.png)	
 
   * 第三步：看错误，显然跟`Gradle`没有任何关系，是因为 `IDEA` 编辑器的 `jre` 环境和自己本地的安装的 `jre` 冲突， 解决办法：
 
@@ -218,6 +218,90 @@
 
 * 看源码最重要的是推敲和揣摩
   * `70%`猜想 + `30%`验证
+
+
+
+### spring 框架的优雅之道
+
+#### spring mvc 基本实现思路
+
+* 配置阶段
+  * `xml` 配置
+    1. 配置 `web.xml` - `DispatcherServlet` 
+    2. 设定 `init-param` - `contextConfigLocation = classpath:/application.xml` 
+    3. 设定 `url-pattern` - `/*` 
+  * `JavaConfig` 配置
+    1. 配置 `Annotation` - `@controller、@Service、@Autowired、@RequestMapping...` 
+*  初始化阶段
+  1. 调用 `init()` 方法
+     * 加载配置文件
+  2. `IOC` 容器初始化 
+     *  `Map<String, Object>` 
+  3. 扫描相关的类
+     *  `scan-package="com.xxx"` 
+  4. 创建实例化并保存至容器 - `IOC` 
+     * 通过反射机制将类实例化并放入 `IOC` 容器中 
+  5. 进行 `DI` 操作 - `DI` 
+     * 扫描 `IOC` 容器中的实例，给没有赋值的属性自动赋值
+  6. 初始化 `HandlerMapping` - `MVC` 
+     * 将一个 `URL` 和一个 `Method` 进行一对一的关联映射 `Map<String, Method>` 
+* 运行阶段
+  1. 调用 `doPost()/doGet()` 
+     * `Web` 容器调用 `doPost()/doGet()` 方法，获得 `request/response` 对象
+  2. 匹配 `HandlerMapping` 
+     * 从 `request` 对象中获得用户输入的 `URL` ，找到其对应的 `Method` 
+  3. 反射调用 `method.invoker()` 
+     * 利用反射调用方法并返回结果
+  4. `response.getWrite().write()` 
+     * 将返回结果输出到浏览器
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
