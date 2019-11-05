@@ -24,5 +24,14 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.4.22.v20191022</version>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,7 +1,10 @@
 package com.jinm.learning.webmvc.servlet;
 
+import com.jinm.learning.webmvc.core.annotation.JMAutowired;
 import com.jinm.learning.webmvc.core.annotation.JMController;
+import com.jinm.learning.webmvc.core.annotation.JMRequestMapping;
 import com.jinm.learning.webmvc.core.annotation.JMService;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -11,6 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 
@@ -30,6 +35,9 @@ public class JmDispatherServlet extends HttpServlet {
     // IOC 容器
     Map<String, Object> iocContainer = new HashMap<String, Object>();
 
+    // 保存 method 和 url 的对应关系
+    Map<String, Method> handlerMapping = new HashMap<String, Method>();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doPost(req, resp);
@@ -42,7 +50,13 @@ public class JmDispatherServlet extends HttpServlet {
         * 6.调用：
         *       运行阶段
         * */
-        dispatch(req, resp);
+        try {
+            dispatch(req, resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+            resp.getWriter().write("500 Exception, Detail : " + Arrays.toString(e.getStackTrace()));
+            return;
+        }
 
     }
 
@@ -145,7 +159,6 @@ public class JmDispatherServlet extends HttpServlet {
                 classNameList.add(className);
             }
 
-
         }
 
     }
@@ -169,16 +182,44 @@ public class JmDispatherServlet extends HttpServlet {
                 * */
                 Class<?> clazz = Class.forName(className);
 
-                // 对加了注解的类进行初始化操作
-                if (clazz.isAnnotationPresent(JMController.class) || clazz.isAnnotationPresent(JMService.class)){
+                String beanName = null;
 
-                    // 类初始化
-                    Object instance = clazz.newInstance();
+                // 对加了注解的类进行初始化操作
+                if (clazz.isAnnotationPresent(JMController.class)){
+
+                    //  类名首字母小写
+                    beanName = toLowerCaseFirst(clazz.getSimpleName());
+                    iocContainer.put(beanName, clazz.newInstance());
+
+                }else if (clazz.isAnnotationPresent(JMService.class)){
+
+
+                    // 1.自定义bean name，即在注解中传参的形式
+                    JMService service = clazz.getAnnotation(JMService.class);
+                    beanName = service.value();
+
+                    //  3.类名首字母小写
+                    if (StringUtils.isEmpty(beanName)){
+                        beanName = toLowerCaseFirst(clazz.getSimpleName());
+                    }
 
                     // ioc 容器存储
-                    String key = clazz.getSimpleName();
-                    iocContainer.put(key, instance);
+                    // 类初始化
+                    iocContainer.put(beanName, clazz.newInstance());
 
+                    // 2.根据类型自动赋值
+                    for (Class<?> i : clazz.getInterfaces()){
+
+                        if (iocContainer.containsKey(i.getName())){
+                            throw new Exception("The '" + i.getName() + "' exists" );
+                        }
+                        iocContainer.put(i.getName(), clazz.newInstance());
+
+                    }
+
+
+                }else {
+                    continue;
                 }
 
             }
@@ -188,14 +229,112 @@ public class JmDispatherServlet extends HttpServlet {
 
     }
 
+    // DI：依赖注入
     private void autoWired() {
+
+        if (iocContainer.isEmpty()){
+            return;
+        }
+
+        for (Map.Entry<String, Object> entry : iocContainer.entrySet()){
+
+            // Declare：类中声明的所有字段，包括 public、protect、private、default
+            Field[] fields = entry.getValue().getClass().getDeclaredFields();
+            for (Field field : fields){
+                if (!field.isAnnotationPresent(JMAutowired.class)){
+                    continue;
+                }
+
+                JMAutowired autowired = field.getAnnotation(JMAutowired.class);
+                String beanName = autowired.value();
+
+                // 如果没有自定义 beanName，默认使用类型注入
+                if (StringUtils.isEmpty(beanName)){
+                    beanName = field.getType().getName();
+                }
+
+                // 暴力访问：如果类属性的访问限制高于 public，也强制赋值
+                field.setAccessible(true);
+                try {
+                    // 反射动态给类的属性赋值
+                    field.set(entry.getValue(), iocContainer.get(beanName));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
     }
 
+    // 初始化 method 和 url 一一对应关系
     private void initHandlerMapping() {
 
+        if (iocContainer.isEmpty()){
+            return;
+        }
+
+        for (Map.Entry<String, Object> entry : iocContainer.entrySet()){
+
+            Class<?> clazz = entry.getValue().getClass();
+            if (!clazz.isAnnotationPresent(JMController.class)){
+                continue;
+            }
+
+            // 类的 url
+            String baseUrl = "";
+            if (clazz.isAnnotationPresent(JMRequestMapping.class)){
+                JMRequestMapping requestMapping = clazz.getAnnotation(JMRequestMapping.class);
+                baseUrl = requestMapping.value();
+            }
+
+            // 方法的 url
+            // 获取 public 方法
+            for (Method method : clazz.getMethods()){
+
+                if (!method.isAnnotationPresent(JMRequestMapping.class)){
+                    continue;
+                }
+
+                String realUrl = (baseUrl + "/" + method.getAnnotation(JMRequestMapping.class).value()).replaceAll("/+", "/");
+                handlerMapping.put(realUrl, method);
+                System.out.println("Mapped:" + realUrl + "--> method:" + method);
+
+            }
+
+        }
+
     }
 
-    private void dispatch(HttpServletRequest req, HttpServletResponse resp) {
+    private void dispatch(HttpServletRequest req, HttpServletResponse resp) throws Exception{
+
+        // 客户端请求访问的 url：绝对路径
+        String url = req.getRequestURI();
+
+        // 将客户端请求的绝对路径，转换为工程中的相对路径
+        String contextPath = req.getContextPath();
+        url = url.replaceAll(contextPath, "").replaceAll("/+", "/");
+
+        if (!handlerMapping.containsKey(url)){
+            resp.getWriter().write("404 Not Found !!!!");
+            return;
+        }
+
+        Method method = handlerMapping.get(url);
+
+        String beanName = toLowerCaseFirst(method.getDeclaringClass().getSimpleName());
+
+        Map<String, String[]> params = req.getParameterMap();
+
+        method.invoke(iocContainer.get(beanName), new Object[]{req, resp, params.get("name")[0]});
+
+    }
+
+    private String toLowerCaseFirst(String name) {
+        char[] chars = name.toCharArray();
+        chars[0] += 32;
+        return String.valueOf(chars);
     }
 
 }
