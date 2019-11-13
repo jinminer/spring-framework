@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -322,9 +323,51 @@ public class JmDispatherServlet extends HttpServlet {
 
         Map<String, String[]> params = req.getParameterMap();
 
-        //反射调用 Controller 类的具体方法
-        method.invoke(iocContainer.get(beanName), new Object[]{req, resp, params.get("name")[0]});
+        /*
+        * 获取 request 请求中的参数值，并与 Controller 中的具体方法进行映射
+        * */
+        Object[] parameters = requestParametersMapping(req, resp, method);
 
+        //反射调用 Controller 类的具体方法
+        method.invoke(iocContainer.get(beanName), req, resp, params.get("name")[0]);
+
+    }
+
+    private Object[] requestParametersMapping(HttpServletRequest req, HttpServletResponse resp, Method method) {
+
+        Map<String, String[]> requestParams = req.getParameterMap();
+
+        Class<?>[] methodParameterTypes = method.getParameterTypes();
+
+        Object[] paramValues = new Object[methodParameterTypes.length];
+
+        for (int i = 0; i < methodParameterTypes.length; i++) {
+
+            if (methodParameterTypes[i] == HttpServletRequest.class){
+
+                paramValues[i] = req;
+                continue;
+
+            }
+
+            if (methodParameterTypes[i] == HttpServletResponse.class){
+
+                paramValues[i] = resp;
+                continue;
+
+            }
+
+            Annotation[][] methodParameterAnnotations = method.getParameterAnnotations();
+
+            if (methodParameterTypes[i] == String.class){
+
+
+
+            }
+
+        }
+
+        return new Object[0];
     }
 
     private String toLowerCaseFirst(String name) {
