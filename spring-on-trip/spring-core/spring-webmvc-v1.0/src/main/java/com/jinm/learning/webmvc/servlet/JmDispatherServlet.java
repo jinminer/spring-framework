@@ -68,7 +68,6 @@ public class JmDispatherServlet extends HttpServlet {
         /*
         * 1.加载配置文件：
         *       读取配置："scan.package=com.jinm.learning.webmvc"  - 类扫描的包路径；
-        *       这里由于.xml文件(applicationContext.xml)读取比较麻烦，所以使用读取较为容易的application.properties；
         * */
         loadConfig(config.getInitParameter("contextConfigLocation"));
 
@@ -76,7 +75,7 @@ public class JmDispatherServlet extends HttpServlet {
          * 2.扫描相关类：
          *      根据 key 获取 Properties 对象键值对内容 "scan.package=com.jinm.learning.webmvc" 中的 value 值，即包名："com.jinm.learning.webmvc" ；
          *      这里是以 Properties 作为配置文件，如果使用 xml 文件，读取配置较为复杂；
-         *      扫描该包路径，得到的包路径下的相关类；
+         *      扫描该包路径，得到的包路径下的相关类的类名；
          *
          * */
         scanPackage(contextConfig.getProperty("scan.package"));
@@ -197,7 +196,7 @@ public class JmDispatherServlet extends HttpServlet {
                     JMService service = clazz.getAnnotation(JMService.class);
                     beanName = service.value();
 
-                    //  3.类名首字母小写
+                    //  2.类名首字母小写
                     if ("".equals(beanName)){
                         beanName = toLowerCaseFirst(clazz.getSimpleName());
                     }
@@ -206,7 +205,7 @@ public class JmDispatherServlet extends HttpServlet {
                     // 类初始化
                     iocContainer.put(beanName, clazz.newInstance());
 
-                    // 2.根据类型自动赋值
+                    // 3.根据类型自动赋值
                     for (Class<?> i : clazz.getInterfaces()){
 
                         if (iocContainer.containsKey(i.getName())){
@@ -216,9 +215,6 @@ public class JmDispatherServlet extends HttpServlet {
 
                     }
 
-
-                }else {
-                    continue;
                 }
 
             }
@@ -326,6 +322,7 @@ public class JmDispatherServlet extends HttpServlet {
 
         Map<String, String[]> params = req.getParameterMap();
 
+        //反射调用 Controller 类的具体方法
         method.invoke(iocContainer.get(beanName), new Object[]{req, resp, params.get("name")[0]});
 
     }
