@@ -3,13 +3,13 @@ package com.jinm.learning.webmvc.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * @author jinm 2019/11/05 23:22.
+ * @author jinm 2019/11/12 22:56.
  */
 
-@Target({ElementType.FIELD})
+@Target({ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface JMAutowired {
+public @interface JMRequestParam {
 
     String value() default "";
 

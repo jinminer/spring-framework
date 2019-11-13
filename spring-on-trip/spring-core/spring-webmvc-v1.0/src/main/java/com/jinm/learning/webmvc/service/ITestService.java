@@ -6,6 +6,6 @@ package com.jinm.learning.webmvc.service;
 
 public interface ITestService {
 
-    void testService(String name);
+    String testService(String name);
 
 }

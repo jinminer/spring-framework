@@ -4,7 +4,6 @@ import com.jinm.learning.webmvc.core.annotation.JMAutowired;
 import com.jinm.learning.webmvc.core.annotation.JMController;
 import com.jinm.learning.webmvc.core.annotation.JMRequestMapping;
 import com.jinm.learning.webmvc.core.annotation.JMService;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -149,7 +148,7 @@ public class JmDispatherServlet extends HttpServlet {
 
             // 如果 file 对象是一个目录，则继续递归扫描
             if (file.isDirectory()){
-                scanPackage(scanPackage + file.getName());
+                scanPackage(scanPackage  + "." +  file.getName());
                 continue;
             }
 
@@ -199,7 +198,7 @@ public class JmDispatherServlet extends HttpServlet {
                     beanName = service.value();
 
                     //  3.类名首字母小写
-                    if (StringUtils.isEmpty(beanName)){
+                    if ("".equals(beanName)){
                         beanName = toLowerCaseFirst(clazz.getSimpleName());
                     }
 
@@ -249,7 +248,7 @@ public class JmDispatherServlet extends HttpServlet {
                 String beanName = autowired.value();
 
                 // 如果没有自定义 beanName，默认使用类型注入
-                if (StringUtils.isEmpty(beanName)){
+                if ("".equals(beanName)){
                     beanName = field.getType().getName();
                 }
 

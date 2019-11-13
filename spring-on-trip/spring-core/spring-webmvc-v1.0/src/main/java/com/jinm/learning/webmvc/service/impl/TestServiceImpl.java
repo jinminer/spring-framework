@@ -10,8 +10,9 @@ import com.jinm.learning.webmvc.service.ITestService;
 @JMService
 public class TestServiceImpl implements ITestService {
 
-    public void testService(String name) {
-        System.out.println("hello " + name);
+    @Override
+    public String testService(String name) {
+        return "hello " + name;
     }
 
 }
