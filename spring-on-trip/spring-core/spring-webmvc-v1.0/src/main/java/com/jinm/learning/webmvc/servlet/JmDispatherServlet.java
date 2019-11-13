@@ -1,9 +1,6 @@
 package com.jinm.learning.webmvc.servlet;
 
-import com.jinm.learning.webmvc.core.annotation.JMAutowired;
-import com.jinm.learning.webmvc.core.annotation.JMController;
-import com.jinm.learning.webmvc.core.annotation.JMRequestMapping;
-import com.jinm.learning.webmvc.core.annotation.JMService;
+import com.jinm.learning.webmvc.core.annotation.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -329,7 +326,8 @@ public class JmDispatherServlet extends HttpServlet {
         Object[] parameters = requestParametersMapping(req, resp, method);
 
         //反射调用 Controller 类的具体方法
-        method.invoke(iocContainer.get(beanName), req, resp, params.get("name")[0]);
+//        method.invoke(iocContainer.get(beanName), req, resp, params.get("name")[0]);
+        method.invoke(iocContainer.get(beanName), parameters);
 
     }
 
@@ -361,13 +359,25 @@ public class JmDispatherServlet extends HttpServlet {
 
             if (methodParameterTypes[i] == String.class){
 
-
+                for (int j = 0; j < methodParameterAnnotations.length; j++) {
+                    for (Annotation annotation : methodParameterAnnotations[i]){
+                        if (annotation instanceof JMRequestParam){
+                            String paramName = ((JMRequestParam) annotation).value();
+                            if (!"".equals(paramName)){
+                                String value = Arrays.toString(requestParams.get(paramName))
+                                        .replaceAll("\\[|\\]","")
+                                        .replaceAll("\\s",",");
+                                paramValues[i] = value;
+                            }
+                        }
+                    }
+                }
 
             }
 
         }
 
-        return new Object[0];
+        return paramValues;
     }
 
     private String toLowerCaseFirst(String name) {
