@@ -333,10 +333,18 @@ public class JmDispatherServlet extends HttpServlet {
 
     private Object[] requestParametersMapping(HttpServletRequest req, HttpServletResponse resp, Method method) {
 
+        /*
+        * request 请求中的参数：
+        *   这里 map 中的 value 定义为 String[] 数组类型 ，
+        *   是因为在实际的请求中，一个参数可能对应多个值，即一个 key 对应多个 value ，如 ：
+        *   http://127.0.0.1:8080/jinm/test?name=jinm&name=godfather
+        * */
         Map<String, String[]> requestParams = req.getParameterMap();
 
+        // Controller 类中，具体处理请求方法的 形参列表
         Class<?>[] methodParameterTypes = method.getParameterTypes();
 
+        // 赋值给 Controller 类中，具体处理请求方法的 实参
         Object[] paramValues = new Object[methodParameterTypes.length];
 
         for (int i = 0; i < methodParameterTypes.length; i++) {
@@ -355,6 +363,12 @@ public class JmDispatherServlet extends HttpServlet {
 
             }
 
+            /*
+            * 获取 Controller 类中，具体处理请求方法的 形参上的注解：
+            *   返回值为 二维数组：
+            *       横向维度：每个添加了注解的形参，在方法中的位置/坐标
+            *       纵向维度：每个形参上的具体注解（一个参数可能被多个注解修饰）
+            * */
             Annotation[][] methodParameterAnnotations = method.getParameterAnnotations();
 
             if (methodParameterTypes[i] == String.class){
@@ -365,6 +379,7 @@ public class JmDispatherServlet extends HttpServlet {
                             String paramName = ((JMRequestParam) annotation).value();
                             if (!"".equals(paramName)){
                                 String value = Arrays.toString(requestParams.get(paramName))
+                                        // 去除数据元素两边的 [] 符号
                                         .replaceAll("\\[|\\]","")
                                         .replaceAll("\\s",",");
                                 paramValues[i] = value;
