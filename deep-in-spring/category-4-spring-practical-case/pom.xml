@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>deep-in-spring</artifactId>
+        <groupId>com.jinm</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>category-4-spring-practical-case</artifactId>
+    <packaging>pom</packaging>
+
+    <name>深入理解 spring：范畴四：：spring 实践案例</name>
+    <modules>
+        <module>section-1-spring5-new-characteristics</module>
+        <module>section-2-spring-classical-usage</module>
+    </modules>
+
+</project>

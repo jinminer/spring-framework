@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>deep-in-spring</artifactId>
+        <groupId>com.jinm</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>category-1-spring-core-philosophy</artifactId>
+    <packaging>pom</packaging>
+
+    <name>深入理解 spring：范畴一：：spring 核心原理</name>
+
+    <modules>
+        <module>section-1-spring-past-life</module>
+        <module>section-2-sprng-naming-specification-and-build</module>
+        <module>section-3-spring-core-philosophy-1</module>
+        <module>section-4-spring-core-philosophy-2</module>
+        <module>section-5-spring-core-philosophy-3</module>
+        <module>section-6-spring-core-philosophy-4</module>
+        <module>section-7-spring-inversion-of-control-1</module>
+        <module>section-8-spring-inversion-of-control-2</module>
+        <module>section-9-spring-inversion-of-control-3</module>
+        <module>section-10-spring-dependency-injection</module>
+        <module>section-11-spring-bean-factory</module>
+        <module>section-12-spring-aspect-oriented-programming-1</module>
+        <module>section-13-spring-aspect-oriented-programming-2</module>
+        <module>section-14-spring-ioc-di-aop-summary</module>
+        <module>section-15-model-view-controller-1</module>
+        <module>section-16-model-view-controller-2</module>
+        <module>section-17-model-view-controller-3</module>
+    </modules>
+
+</project>
