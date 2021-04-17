@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
@@ -47,7 +48,7 @@ public class JMDispatcherServlet extends HttpServlet {
         Method requestMethod = handlerMapping.get(requestUrl);
 
         // 参数位置和名称进行映射
-        Map<Integer, String> paramIndexMapping = new HashMap<>();
+        Map<String, Integer> paramIndexMapping = new HashMap<>();
 
         // 方法参数的注解：一个参数可能有多个注解
         Annotation[][] paramAnotations = requestMethod.getParameterAnnotations();
@@ -56,13 +57,55 @@ public class JMDispatcherServlet extends HttpServlet {
                 if (annotation instanceof JMRequestParam){
                     String paramName = ((JMRequestParam) annotation).value();
                     if (!"".equals(paramName)){
-                        paramIndexMapping.put(i, paramName);
+                        paramIndexMapping.put(paramName, i);
                     }
                 }
             }
         }
 
-        Map req.getParameterMap();
+        Class<?> [] paramTypes = requestMethod.getParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++) {
+            Class<?> type = paramTypes[i];
+            if(type == HttpServletRequest.class || type == HttpServletResponse.class){
+                paramIndexMapping.put(type.getName(),i);
+            }
+        }
+
+        //2、根据参数位置匹配参数名字，从url中取到参数名字对应的值
+        Object[] paramValues = new Object[paramTypes.length];
+
+        //http://localhost/demo/query?name=Tom&name=Tomcat&name=Mic
+        Map<String,String[]> params = req.getParameterMap();
+        for (Map.Entry<String, String[]> param : params.entrySet()) {
+            String value = Arrays.toString(param.getValue())
+                    .replaceAll("\\[|\\]","")
+                    .replaceAll("\\s","");
+
+            if(!paramIndexMapping.containsKey(param.getKey())){continue;}
+
+            int index = paramIndexMapping.get(param.getKey());
+
+            //涉及到类型强制转换
+            paramValues[index] = value;
+        }
+
+        if(paramIndexMapping.containsKey(HttpServletRequest.class.getName())){
+            int index = paramIndexMapping.get(HttpServletRequest.class.getName());
+            paramValues[index] = req;
+        }
+
+        if(paramIndexMapping.containsKey(HttpServletResponse.class.getName())){
+            int index = paramIndexMapping.get(HttpServletResponse.class.getName());
+            paramValues[index] = resp;
+        }
+
+        String beanName = toLowerFirstCase(requestMethod.getDeclaringClass().getSimpleName());
+        //3、组成动态实际参数列表，传给反射调用
+        try {
+            requestMethod.invoke(ioc.get(beanName),paramValues);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
 
     }
 
