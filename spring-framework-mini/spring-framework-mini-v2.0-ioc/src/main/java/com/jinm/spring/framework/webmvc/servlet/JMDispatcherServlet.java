@@ -1,6 +1,7 @@
-package com.jinm.mvcframework.v1.servlet;
+package com.jinm.spring.framework.webmvc.servlet;
 
 import com.jinm.mvcframework.annotation.*;
+import com.jinm.spring.framework.annotation.*;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -154,7 +155,7 @@ public class JMDispatcherServlet extends HttpServlet {
     }
 
     private void loadConfiguration(ServletConfig config) {
-        URL propertiesPath = this.getClass().getClassLoader().getResource(config.getInitParameter("contextConfigLocation"));
+        URL propertiesPath = this.getClass().getClassLoader().getResource(config.getInitParameter("contextConfigLocation").replaceAll("classpath:", ""));
         try(FileInputStream inputStream = new FileInputStream(propertiesPath.getFile())){
             this.contextConfig.load(inputStream);
         }catch (Exception e){

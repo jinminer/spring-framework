@@ -2,7 +2,10 @@ package com.jinm.demo.action;
 
 
 import com.jinm.demo.service.IDemoService;
-import com.jinm.mvcframework.annotation.*;
+import com.jinm.spring.framework.annotation.JMAutowired;
+import com.jinm.spring.framework.annotation.JMController;
+import com.jinm.spring.framework.annotation.JMRequestMapping;
+import com.jinm.spring.framework.annotation.JMRequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +17,8 @@ import java.io.IOException;
 @JMRequestMapping("/demo")
 public class DemoAction {
 
-  	@JMAutowired private IDemoService demoService;
+  	@JMAutowired
+    private IDemoService demoService;
 
 	@JMRequestMapping("/query")
 	public void query(HttpServletRequest req, HttpServletResponse resp,

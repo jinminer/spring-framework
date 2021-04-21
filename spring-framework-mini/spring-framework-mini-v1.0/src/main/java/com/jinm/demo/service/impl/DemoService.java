@@ -1,7 +1,7 @@
 package com.jinm.demo.service.impl;
 
 import com.jinm.demo.service.IDemoService;
-import com.jinm.mvcframework.annotation.JMService;
+import com.jinm.spring.framework.annotation.JMService;
 
 /**
  * 核心业务逻辑

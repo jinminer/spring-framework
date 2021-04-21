@@ -2,10 +2,10 @@ package com.jinm.demo.action;
 
 
 import com.jinm.demo.service.IDemoService;
-import com.jinm.mvcframework.annotation.JMAutowired;
-import com.jinm.mvcframework.annotation.JMController;
-import com.jinm.mvcframework.annotation.JMRequestMapping;
-import com.jinm.mvcframework.annotation.JMRequestParam;
+import com.jinm.spring.framework.annotation.JMAutowired;
+import com.jinm.spring.framework.annotation.JMController;
+import com.jinm.spring.framework.annotation.JMRequestMapping;
+import com.jinm.spring.framework.annotation.JMRequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

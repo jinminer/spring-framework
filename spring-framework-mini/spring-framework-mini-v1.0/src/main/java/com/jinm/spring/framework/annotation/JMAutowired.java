@@ -1,10 +1,10 @@
-package com.jinm.mvcframework.annotation;
+package com.jinm.spring.framework.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.TYPE})
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface JMController {
+public @interface JMAutowired {
     String value() default "";
 }

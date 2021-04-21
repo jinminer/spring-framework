@@ -1,4 +1,4 @@
-package com.jinm.mvcframework.annotation;
+package com.jinm.spring.framework.annotation;
 
 import java.lang.annotation.*;
 
