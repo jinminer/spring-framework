@@ -1,6 +1,5 @@
 package com.jinm.spring.framework.webmvc.servlet;
 
-import com.jinm.mvcframework.annotation.*;
 import com.jinm.spring.framework.annotation.*;
 
 import javax.servlet.ServletConfig;

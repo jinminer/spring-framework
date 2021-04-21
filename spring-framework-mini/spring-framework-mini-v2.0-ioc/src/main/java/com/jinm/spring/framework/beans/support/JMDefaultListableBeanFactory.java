@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class JMDefaultListableBeanFactory implements JMBeanFactory {
 
-    Map<String, JMBeanDefinition> beanDefinitionMap = new HashMap<>();
+    public Map<String, JMBeanDefinition> beanDefinitionMap = new HashMap<>();
 
     @Override
     public Object getBean(String beanName) {
