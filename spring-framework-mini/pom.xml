@@ -11,6 +11,7 @@
     <modules>
         <module>spring-framework-mini-v1.0</module>
         <module>spring-framework-mini-v2.0-ioc</module>
+        <module>spring-framework-mini-v3.0-di</module>
     </modules>
 
     <properties>
