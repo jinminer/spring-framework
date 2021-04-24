@@ -7,7 +7,7 @@
 	<display-name>Gupao Web Application</display-name>
 	<servlet>
 		<servlet-name>jmmvc</servlet-name>
-		<servlet-class>com.jinm.spring.framework.webmvc.servlet.JMDispatcherServlet</servlet-class>
+		<servlet-class>com.jinm.spring.framework.webmvc.servlet.JMDispatcherServlet1</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>application.properties</param-value>

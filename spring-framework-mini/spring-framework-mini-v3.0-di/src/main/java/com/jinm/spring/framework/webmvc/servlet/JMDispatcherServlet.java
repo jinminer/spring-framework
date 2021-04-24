@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class JMDispatcherServlet extends HttpServlet {
 
@@ -107,7 +105,7 @@ public class JMDispatcherServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
 
-            applicationContext = new JMApplicationContext(config.getInitParameter("contextConfigLocation"));
+        applicationContext = new JMApplicationContext(config.getInitParameter("contextConfigLocation"));
         // 1. 加载配置文件
 //        loadConfiguration(config);
 
