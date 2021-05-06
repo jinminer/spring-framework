@@ -65,8 +65,8 @@ public class JMApplicationContext implements JMBeanFactory {
     @Override
     public Object getBean(String beanName) {
 
-        if (factoryBeanInstanceCache.get(beanName) != null){
-            return factoryBeanInstanceCache.get(beanName).getWrappedInstance();
+        if (factoryBeanObjectCache.get(beanName) != null){
+            return factoryBeanObjectCache.get(beanName);
         }
 
         //1、先拿到BeanDefinition配置信息
@@ -78,11 +78,11 @@ public class JMApplicationContext implements JMBeanFactory {
         //3、将返回的Bean的对象封装成BeanWrapper
         JMBeanWrapper beanWrapper = new JMBeanWrapper(instance);
 
-        //5、保存到IoC容器中
-        this.factoryBeanInstanceCache.put(beanName,beanWrapper);
-
         //4、执行依赖注入
         populateBean(beanName,beanDefinition,beanWrapper);
+
+        //5、保存到IoC容器中
+        this.factoryBeanInstanceCache.put(beanName,beanWrapper);
 
         return beanWrapper.getWrappedInstance();
     }
