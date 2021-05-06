@@ -64,6 +64,11 @@ public class JMApplicationContext implements JMBeanFactory {
 
     @Override
     public Object getBean(String beanName) {
+
+        if (factoryBeanInstanceCache.get(beanName) != null){
+            return factoryBeanInstanceCache.get(beanName).getWrappedInstance();
+        }
+
         //1、先拿到BeanDefinition配置信息
         JMBeanDefinition beanDefinition = registry.beanDefinitionMap.get(beanName);
 
@@ -73,11 +78,11 @@ public class JMApplicationContext implements JMBeanFactory {
         //3、将返回的Bean的对象封装成BeanWrapper
         JMBeanWrapper beanWrapper = new JMBeanWrapper(instance);
 
-        //4、执行依赖注入
-        populateBean(beanName,beanDefinition,beanWrapper);
-
         //5、保存到IoC容器中
         this.factoryBeanInstanceCache.put(beanName,beanWrapper);
+
+        //4、执行依赖注入
+        populateBean(beanName,beanDefinition,beanWrapper);
 
         return beanWrapper.getWrappedInstance();
     }
@@ -123,12 +128,13 @@ public class JMApplicationContext implements JMBeanFactory {
             field.setAccessible(true);
 
             try {
-                if(this.factoryBeanInstanceCache.get(autowiredBeanName) == null){
-                    continue;
-                }
-
-                //相当于 demoAction.demoService = ioc.get("com.gupaoedu.demo.service.IDemoService");
-                field.set(instance,this.factoryBeanInstanceCache.get(autowiredBeanName).getWrappedInstance());
+//                if(this.factoryBeanInstanceCache.get(autowiredBeanName) == null){
+//                    continue;
+//                }
+//
+//                //相当于 demoAction.demoService = ioc.get("com.gupaoedu.demo.service.IDemoService");
+//                field.set(instance,this.factoryBeanInstanceCache.get(autowiredBeanName).getWrappedInstance());
+                field.set(instance, getBean(autowiredBeanName));
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
