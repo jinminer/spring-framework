@@ -10,6 +10,7 @@
     <version>1.0.0</version>
     <modules>
         <module>spring-webmvc-v1.0</module>
+        <module>spring-circular-reference</module>
     </modules>
 
 
