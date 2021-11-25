@@ -123,7 +123,7 @@ public class TestService2 {
 
 ### 二级缓存
 
-结构较为简单的循环依赖，用一级缓存做中继就可以解决，但是某些场景仅用一级缓存会出现问题：
+单论循环依赖问题，其实用一级缓存做中继就可以解决，但是某些场景仅用一级缓存会出现问题：
 
 ```java
 @Service
@@ -158,6 +158,41 @@ public class TestService3 {
     }
 }
 ```
+
+
+
+* 无二级缓存初始化流程
+
+  ![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-circular-reference/1.5-spring-bean-cache-1.png)
+
+  * 在 `testService3` 完成初始化注入依赖属性时，会创建 `testService1` 的 `objectFactory` 实例对象，并存储到三级缓存中，在这个过程中 `testService1` 的初始化过程是独立、互不影响的，所以 `testService2` 在注入 `testService1` 时，可能也会创建另一个  `testService1` 的 `objectFactory` 实例对象，这样会出现同一个 bean 多个实例的现象
+  * bean通过反射实例化是在从三级缓存获取实例时进行的
+
+* 有二级缓存初始化流程
+
+  ![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-circular-reference/1.5-spring-bean-cache-2.png)
+
+  * 增加了二级缓存之后，当从三级缓存获取bean的实例之后，会将其保存到二级缓存，这样当其他 bean需要注入已经有实例化对象的 bean时，先去从二级缓存获取，如果存在则不在去走从三级缓存获取的步骤(反射实例化bean，并且放入三级缓存)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
