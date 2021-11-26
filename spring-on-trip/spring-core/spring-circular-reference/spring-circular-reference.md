@@ -176,21 +176,157 @@ public class TestService3 {
 
 
 
+### 三级缓存
+
+三级缓存中存放的bean实例为 `ObjectFactory` 对象，这是为了对bean进行增强处理，比如AOP代理等等
+
+
+
+### 多例的 setter 注入
+
+```java
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Service
+public class TestService1 {
+
+    @Autowired
+    private TestService2 testService2;
+
+    public void test1() {
+    }
+}
+
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+@Service
+public class TestService2 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test2() {
+    }
+}
+```
+
+这种循环依赖问题是无法解决的，因为它没有用缓存，每次都会生成一个新对象。
+
+
+
+### 构造器注入
+
+```java
+@Service
+public class TestService1 {
+
+    public TestService1(TestService2 testService2) {
+    }
+}
+
+@Service
+public class TestService2 {
+
+    public TestService2(TestService1 testService1) {
+    }
+}
+```
+
+
+
+![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-circular-reference/1.6-bean-construct-setter-1.png)
 
 
 
 
 
+构造器注入，没有使用缓存，无法解决循环依赖问题
 
 
 
+### 单例的代理对象setter注入
+
+```java
+@Service
+public class TestService1 {
+
+    @Autowired
+    private TestService2 testService2;
+
+    @Async
+    public void test1() {
+    }
+}
+
+@Service
+public class TestService2 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test2() {
+    }
+}
+```
+
+使用`@Async`注解的场景，通过`AOP`自动生成代理对象。
+
+![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-circular-reference/1.7-bean-singleton-proxy-inject-1.png)
 
 
 
+bean初始化完成之后，后面还有一步去检查：第二级缓存 和 原始对象是否相等，发现第二级缓存 和 原始对象不相等，所以抛出了循环依赖的异常。
+
+* 修改代码：把TestService1改个名字，改成：TestService6，可以完成注入
+
+```
+@Service
+public class TestService6 {
+
+    @Autowired
+    private TestService2 testService2;
+
+    @Async
+    public void test1() {
+    }
+}
+```
+
+![](https://raw.githubusercontent.com/jinminer/docs/master/spring-framework/spring-on-trip/spring-circular-reference/1.7-bean-singleton-proxy-inject-2.png)
 
 
 
+* spring的bean加载顺序:，默认情况下，spring是按照文件完整路径递归查找的，按路径+文件名排序，排在前面的先加载。所以TestService1比TestService2先加载，而改了文件名称之后，TestService2比TestService6先加载。
+* testService6中其实第二级缓存是空的，不需要跟原始对象判断，所以不会抛出循环依赖。
+* bean是在从三级缓存中存在时，才会放到二级缓存
 
+
+
+### DependsOn循环依赖
+
+```java
+@DependsOn(value = "testService2")
+@Service
+public class TestService1 {
+
+    @Autowired
+    private TestService2 testService2;
+
+    public void test1() {
+    }
+}
+
+@DependsOn(value = "testService1")
+@Service
+public class TestService2 {
+
+    @Autowired
+    private TestService1 testService1;
+
+    public void test2() {
+    }
+}
+```
+
+根据先后顺序实例化bean，这是spring会自动检查DependsOn注解中的bean有无循环依赖，如果有，则注入失败
 
 
 
