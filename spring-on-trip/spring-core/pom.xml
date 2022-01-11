@@ -11,6 +11,7 @@
     <modules>
         <module>spring-webmvc-v1.0</module>
         <module>spring-circular-reference</module>
+        <module>spring-aop</module>
     </modules>
 
 

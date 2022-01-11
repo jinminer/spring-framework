@@ -1,6 +1,5 @@
 package com.jinm.learning.webmvc.core.annotation;
 
-import org.springframework.stereotype.Component;
 
 import java.lang.annotation.*;
 
