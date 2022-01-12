@@ -1,5 +1,7 @@
 package com.jinm.learning.webmvc.servlet;
 
+import com.jinm.learning.aop.config.JMAopConfig;
+import com.jinm.learning.aop.support.JMAdvisedSupport;
 import com.jinm.learning.webmvc.core.annotation.*;
 
 import javax.servlet.ServletConfig;
@@ -199,6 +201,8 @@ public class JmDispatherServlet extends HttpServlet {
                         beanName = toLowerCaseFirst(clazz.getSimpleName());
                     }
 
+
+
                     // ioc 容器存储
                     // 类初始化
                     iocContainer.put(beanName, clazz.newInstance());
@@ -393,6 +397,21 @@ public class JmDispatherServlet extends HttpServlet {
         }
 
         return paramValues;
+    }
+
+    private JMAdvisedSupport instantionAopConfig(){
+
+        JMAopConfig aopConfig = new JMAopConfig();
+
+        aopConfig.setPointCut(contextConfig.getProperty("pointCut"));
+        aopConfig.setAspectClass(contextConfig.getProperty("aspectClass"));
+        aopConfig.setAspectBefore(contextConfig.getProperty("aspectBefore"));
+        aopConfig.setAspectAfter(contextConfig.getProperty("aspectAfter"));
+        aopConfig.setAspectAfterThrow(contextConfig.getProperty("aspectAfterThrow"));
+        aopConfig.setAspectAfterThrowingName(contextConfig.getProperty("aspectAfterThrowingName"));
+
+        return null;
+
     }
 
     private String toLowerCaseFirst(String name) {
