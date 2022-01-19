@@ -1,5 +1,7 @@
 package com.jinm.learning.webmvc.servlet;
 
+import com.jinm.learning.aop.proxy.JMAopProxy;
+import com.jinm.learning.aop.proxy.JMDefaultAopProxyFactory;
 import com.jinm.learning.aop.config.JMAopConfig;
 import com.jinm.learning.aop.support.JMAdvisedSupport;
 import com.jinm.learning.webmvc.core.annotation.*;
@@ -36,6 +38,9 @@ public class JmDispatherServlet extends HttpServlet {
 
     // 保存 method 和 url 的对应关系
     Map<String, Method> handlerMapping = new HashMap<String, Method>();
+
+    // 代理工厂
+    JMDefaultAopProxyFactory proxyFactory = new JMDefaultAopProxyFactory();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -202,10 +207,22 @@ public class JmDispatherServlet extends HttpServlet {
                     }
 
 
+                    Object instance = clazz.newInstance();
+
+                    // 判断规则是否要生成代理类，如果是，则调用代理工厂生成代理类，并且放入到三级缓存
+                    // 如果不符合，返回原生类
+                    JMAdvisedSupport support = instantionAopConfig();
+                    support.setTargetClass(clazz);
+                    support.setTarget(instance);
+
+//
+//                    if (support.pointCutMatch()){
+//                        instance = proxyFactory.createAopProxy(support).getProxy();
+//                    }
 
                     // ioc 容器存储
                     // 类初始化
-                    iocContainer.put(beanName, clazz.newInstance());
+                    iocContainer.put(beanName, instance);
 
                     // 3.根据类型自动赋值
                     for (Class<?> i : clazz.getInterfaces()){
@@ -213,7 +230,7 @@ public class JmDispatherServlet extends HttpServlet {
                         if (iocContainer.containsKey(i.getName())){
                             throw new Exception("The '" + i.getName() + "' exists" );
                         }
-                        iocContainer.put(i.getName(), clazz.newInstance());
+                        iocContainer.put(i.getName(), instance);
 
                     }
 
@@ -410,7 +427,7 @@ public class JmDispatherServlet extends HttpServlet {
         aopConfig.setAspectAfterThrow(contextConfig.getProperty("aspectAfterThrow"));
         aopConfig.setAspectAfterThrowingName(contextConfig.getProperty("aspectAfterThrowingName"));
 
-        return null;
+        return new JMAdvisedSupport(aopConfig);
 
     }
 
