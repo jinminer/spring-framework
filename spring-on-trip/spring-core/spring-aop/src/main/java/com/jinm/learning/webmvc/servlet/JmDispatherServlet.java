@@ -215,10 +215,10 @@ public class JmDispatherServlet extends HttpServlet {
                     support.setTargetClass(clazz);
                     support.setTarget(instance);
 
-//
-//                    if (support.pointCutMatch()){
-//                        instance = proxyFactory.createAopProxy(support).getProxy();
-//                    }
+
+                    if (support.pointCutMatch()){
+                        instance = proxyFactory.createAopProxy(support).getProxy();
+                    }
 
                     // ioc 容器存储
                     // 类初始化

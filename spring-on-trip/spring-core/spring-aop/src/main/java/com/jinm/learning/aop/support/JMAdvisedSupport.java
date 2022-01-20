@@ -31,7 +31,7 @@ public class JMAdvisedSupport {
 
         // public .* com.jinmin.learning.webmvc.service..*Service..*(.*)
         //把Spring的Excpress变成Java能够识别的正则表达式
-        String pointCut = aopConfig.getPointCut()
+        String pointCutRegx = aopConfig.getPointCut()
                 .replaceAll("\\.", "\\\\.")
                 .replaceAll("\\\\.\\*", ".*")
                 .replaceAll("\\(", "\\\\(")
@@ -40,7 +40,7 @@ public class JMAdvisedSupport {
 
         //保存专门匹配Class的正则
         // public .* com.jinmin.learning.webmvc.service..*Service
-        String pointCutForClassRegex = pointCut.substring(0, pointCut.lastIndexOf("\\(") - 4);
+        String pointCutForClassRegex = pointCutRegx.substring(0, pointCutRegx.lastIndexOf("\\(") - 4);
 
         // com.jinmin.learning.webmvc.service..*Service
         pointCutClassPattern = Pattern.compile(pointCutForClassRegex.substring(pointCutForClassRegex.lastIndexOf(" ") + 1));
@@ -50,8 +50,50 @@ public class JMAdvisedSupport {
         // query before() after()
         // add before() after() afterThrowing() rollback
 
+        // 先把切面方法缓存起来，方便解析 AOP配置文件的时候，可以根据方法名快速找到对于的回调方法
+        Map<String, Method> aspectMethods = new HashMap<String, Method>();
+        try {
+            Class aspectClass = Class.forName(this.aopConfig.getAspectClass());
+
+            for (Method method : aspectClass.getMethods()){
+                aspectMethods.put(method.getName(), method);
+            }
+
+            Pattern pointCutPattern = Pattern.compile(pointCutRegx);
+
+            for (Method method : this.targetClass.getMethods()){
+
+                // public java.lang.String com.jinm.learning.webmvc.service.impl.TestServiceImpl.testService(java.lang.String)
+                String methodString = method.toString();
+
+                if (methodString.contains("throws")){
+                    methodString = methodString.substring(0, methodString.lastIndexOf("throws")).trim();
+                }
+
+                Matcher matcher = pointCutPattern.matcher(methodString);
+
+                if (matcher.matches()){
+                    Map<String, JMAdvice> advices = new HashMap<String, JMAdvice>();
+
+                    if (!(null == this.aopConfig.getAspectBefore() || "".equals(this.aopConfig.getAspectBefore()))){
+                        advices.put("before", new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectBefore())));
+                    }
+                    if (!(null == this.aopConfig.getAspectAfter() || "".equals(this.aopConfig.getAspectAfter()))){
+                        advices.put("after", new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectAfter())));
+                    }
+                    if (!(null == this.aopConfig.getAspectAfterThrow() || "".equals(this.aopConfig.getAspectAfterThrow()))){
+                        advices.put("afterThrowing", new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectAfterThrow())));
+                    }
+
+                    this.methodCache.put(method, advices);
+                }
+
+            }
 
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -69,6 +111,7 @@ public class JMAdvisedSupport {
 
     public void setTargetClass(Class targetClass) {
         this.targetClass = targetClass;
+        parse();
     }
 
     public Object getTarget() {
@@ -81,5 +124,10 @@ public class JMAdvisedSupport {
 
     public boolean pointCutMatch() {
         return this.pointCutClassPattern.matcher(this.targetClass.getName()).matches();
+    }
+
+    public Map<String, JMAdvice> getAdvices(Method method, Class targetClass) {
+
+        return null;
     }
 }
