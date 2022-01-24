@@ -8,11 +8,19 @@ import com.jinm.learning.webmvc.service.ITestService;
  */
 
 @JMService
-public class TestServiceImpl implements ITestService {
+public class TestService implements ITestService {
 
     @Override
-    public String testService(String name) {
+    public String query(String name) {
+
+        System.out.println("");
+
         return "hello " + name;
+    }
+
+    @Override
+    public void add() throws Exception {
+        throw new Exception("IN method： add error");
     }
 
 }

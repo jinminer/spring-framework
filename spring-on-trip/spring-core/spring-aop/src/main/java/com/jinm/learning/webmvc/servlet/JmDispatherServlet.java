@@ -206,7 +206,6 @@ public class JmDispatherServlet extends HttpServlet {
                         beanName = toLowerCaseFirst(clazz.getSimpleName());
                     }
 
-
                     Object instance = clazz.newInstance();
 
                     // 判断规则是否要生成代理类，如果是，则调用代理工厂生成代理类，并且放入到三级缓存

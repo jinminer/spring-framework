@@ -21,13 +21,26 @@ public class TestController {
     @JMAutowired
     private ITestService testService;
 
-    @JMRequestMapping("/test")
-    public void test(HttpServletRequest request, HttpServletResponse response, @JMRequestParam("name") String name){
+    @JMRequestMapping("/query")
+    public void query(HttpServletRequest request, HttpServletResponse response, @JMRequestParam("name") String name){
 
-        String result = testService.testService(name);
+        String result = testService.query(name);
 
         try {
             response.getWriter().write(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @JMRequestMapping("/add")
+    public void add(HttpServletRequest request, HttpServletResponse response, @JMRequestParam("name") String name) throws Exception {
+
+        testService.add();
+
+        try {
+            response.getWriter().write("");
         } catch (IOException e) {
             e.printStackTrace();
         }

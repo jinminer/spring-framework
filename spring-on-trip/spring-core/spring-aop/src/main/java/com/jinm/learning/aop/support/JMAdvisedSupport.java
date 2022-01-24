@@ -40,7 +40,7 @@ public class JMAdvisedSupport {
 
         //保存专门匹配Class的正则
         // public .* com.jinmin.learning.webmvc.service..*Service
-        String pointCutForClassRegex = pointCutRegx.substring(0, pointCutRegx.lastIndexOf("\\(") - 4);
+        String pointCutForClassRegex = pointCutRegx.substring(0, pointCutRegx.lastIndexOf("\\(") - 4).replaceAll("\\\\.", ".");
 
         // com.jinmin.learning.webmvc.service..*Service
         pointCutClassPattern = Pattern.compile(pointCutForClassRegex.substring(pointCutForClassRegex.lastIndexOf(" ") + 1));
@@ -82,14 +82,17 @@ public class JMAdvisedSupport {
                         advices.put("after", new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectAfter())));
                     }
                     if (!(null == this.aopConfig.getAspectAfterThrow() || "".equals(this.aopConfig.getAspectAfterThrow()))){
-                        advices.put("afterThrowing", new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectAfterThrow())));
+
+                        JMAdvice advice = new JMAdvice(aspectClass.newInstance(), aspectMethods.get(this.aopConfig.getAspectAfterThrow()));
+                        advice.setThrowName(this.aopConfig.getAspectAfterThrowingName());
+
+                        advices.put("afterThrowing", advice);
                     }
 
                     this.methodCache.put(method, advices);
                 }
 
             }
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -126,8 +129,15 @@ public class JMAdvisedSupport {
         return this.pointCutClassPattern.matcher(this.targetClass.getName()).matches();
     }
 
-    public Map<String, JMAdvice> getAdvices(Method method, Class targetClass) {
+    public Map<String, JMAdvice> getAdvices(Method method, Class targetClass) throws NoSuchMethodException {
 
-        return null;
+        Map<String, JMAdvice> cache = this.methodCache.get(method);
+        if (null == cache){
+            Method m = targetClass.getMethod(method.getName(), method.getParameterTypes());
+            cache = methodCache.get(m);
+            this.methodCache.put(m, cache);
+        }
+
+        return cache;
     }
 }

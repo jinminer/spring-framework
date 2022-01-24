@@ -6,6 +6,8 @@ package com.jinm.learning.webmvc.service;
 
 public interface ITestService {
 
-    String testService(String name);
+    String query(String name);
+
+    void add() throws Exception;
 
 }
