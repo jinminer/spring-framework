@@ -1,6 +1,5 @@
 package com.jinm.learning.webmvc.servlet;
 
-import com.jinm.learning.aop.proxy.JMAopProxy;
 import com.jinm.learning.aop.proxy.JMDefaultAopProxyFactory;
 import com.jinm.learning.aop.config.JMAopConfig;
 import com.jinm.learning.aop.support.JMAdvisedSupport;

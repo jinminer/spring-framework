@@ -20,7 +20,7 @@ public class JMAdvisedSupport {
 
     private Pattern pointCutClassPattern;
 
-    private Map<Method, Map<String, JMAdvice>> methodCache;
+    private Map<Method, Map<String, JMAdvice>> methodCache = new HashMap<>();
 
     public JMAdvisedSupport(JMAopConfig aopConfig) {
         this.aopConfig = aopConfig;
