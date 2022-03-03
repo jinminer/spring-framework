@@ -24,7 +24,7 @@ import java.util.*;
  * @author jinm 2019/10/23 00:26.
  */
 
-public class JmDispatherServlet extends HttpServlet {
+public class JmAopDispatherServlet extends HttpServlet {
 
     // 保存配置文件 application.properties 中的内容(内存中)
     private Properties contextConfig = new Properties();

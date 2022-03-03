@@ -8,7 +8,7 @@
 
     <servlet>
         <servlet-name>jmmvc</servlet-name>
-        <servlet-class>com.jinm.learning.webmvc.servlet.JmDispatherServlet</servlet-class>
+        <servlet-class>com.jinm.learning.webmvc.servlet.JmAopDispatherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>application.properties</param-value>

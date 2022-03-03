@@ -20,6 +20,11 @@ public class JMJdkDynamicAopProxy implements JMAopProxy, InvocationHandler {
 
     @Override
     public Object getProxy() {
+        // 生成的$Proxy0源码
+        // -Dsun.misc.ProxyGenerator.saveGeneratedFiles=true
+        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+//        System.getProperties().put("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "true");
+
         return Proxy.newProxyInstance(this.support.getTargetClass().getClassLoader(), this.support.getTargetClass().getInterfaces(), this);
     }
 
